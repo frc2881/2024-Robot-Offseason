@@ -58,16 +58,16 @@ class RobotContainer:
         constants.Game.Field.kAprilTagFieldLayout
       ))
     self.launcherBottomBeamBreakSensor = BeamBreakSensor(
-      constants.Sensors.BreamBreak.LauncherBottom.kSensorName,
-      constants.Sensors.BreamBreak.LauncherBottom.kChannel
+      constants.Sensors.BeamBreak.LauncherBottom.kSensorName,
+      constants.Sensors.BeamBreak.LauncherBottom.kChannel
     )
     self.launcherTopBeamBreakSensor = BeamBreakSensor(
-      constants.Sensors.BreamBreak.LauncherTop.kSensorName,
-      constants.Sensors.BreamBreak.LauncherTop.kChannel
+      constants.Sensors.BeamBreak.LauncherTop.kSensorName,
+      constants.Sensors.BeamBreak.LauncherTop.kChannel
     )
     self.climberBeamBreakSensor = BeamBreakSensor(
-      constants.Sensors.BreamBreak.Climber.kSensorName,
-      constants.Sensors.BreamBreak.Climber.kChannel
+      constants.Sensors.BeamBreak.Climber.kSensorName,
+      constants.Sensors.BeamBreak.Climber.kChannel
     )
     self.objectSensor = ObjectSensor(
       constants.Sensors.Object.kCameraName,

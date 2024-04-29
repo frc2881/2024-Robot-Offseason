@@ -221,7 +221,7 @@ class Sensors:
     kVisionMultiTagStandardDeviations: tuple[float, ...] = [0.5, 0.5, 1.0]
     kVisionMaxPoseAmbiguity: float = 0.2
 
-  class BreamBreak:
+  class BeamBreak:
     class LauncherBottom:
       kSensorName = "LauncherBottom"
       kChannel: int = 7
