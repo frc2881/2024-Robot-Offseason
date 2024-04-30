@@ -1,7 +1,7 @@
 import math
 from commands2 import Command, cmd
 from commands2.button import CommandXboxController, Trigger
-from wpilib.interfaces import GenericHID
+from wpilib import XboxController, RobotBase
 from lib import utils
 from lib.classes import ControllerRumblePattern
 
@@ -12,6 +12,7 @@ class GameController(CommandXboxController):
       inputDeadband: float
     ) -> None:
     super().__init__(port)
+    self._hid = super().getHID()
     self._inputDeadband = inputDeadband
 
   def getLeftY(self) -> float:
@@ -39,11 +40,14 @@ class GameController(CommandXboxController):
     return Trigger(lambda: math.fabs(super().getRightX()) > self._inputDeadband)
   
   def rumbleCommand(self, pattern: ControllerRumblePattern) -> Command:
-    match pattern:
-      case ControllerRumblePattern.Short:
-        return cmd.startEnd(
-          lambda: self.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 1.0),
-          lambda: self.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
-        )
-      case _:
-        return cmd.none()
+    if RobotBase.isReal():
+      match pattern:
+        case ControllerRumblePattern.Short:
+          return cmd.startEnd(
+            lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1.0),
+            lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0.0)
+          )
+        case _:
+          return cmd.none()
+    else:
+      return cmd.none()

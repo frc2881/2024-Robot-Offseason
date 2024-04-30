@@ -20,7 +20,7 @@ class GyroSensor(ADIS16470_IMU):
 
   def calibrate(self) -> None:
     if RobotBase.isReal():
-        super().calibrate()
+      super().calibrate()
 
   def set(self, yaw: float) -> None:
     self.setGyroAngle(self.getYawAxis(), yaw)
