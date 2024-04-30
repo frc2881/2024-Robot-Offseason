@@ -39,8 +39,8 @@ class GameCommands:
     return cmd.sequence(
       cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Operator), cmd.none(), lambda: not utils.isAutonomousMode()),
       self.robot.driveSubsystem.alignToTargetCommand(
-        lambda: self.robot.poseSubsystem.getPose(), 
-        lambda: self.robot.poseSubsystem.getTargetYaw()
+        lambda: self.robot.localizationSubsystem.getPose(), 
+        lambda: self.robot.localizationSubsystem.getTargetYaw()
       ).withTimeout(utils.getValueForRobotMode(2.0, float("inf"))),
       cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver), cmd.none(), lambda: not utils.isAutonomousMode())
     ).withName("AlignRobotToTarget")
@@ -48,7 +48,7 @@ class GameCommands:
   def alignLauncherToTargetCommand(self) -> Command:
     return cmd.sequence(
       cmd.parallel(
-        self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.poseSubsystem.getTargetDistance()),
+        self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
         self.robot.launcherRollersSubsystem.runCommand(constants.Subsystems.Launcher.kRollersSpeedsWarmup)
       ).withTimeout(utils.getValueForRobotMode(2.0, float("inf")))
     ).withName("AlignLauncherToTarget")

@@ -9,7 +9,7 @@ from lib.sensors.pose_sensor import PoseSensor
 from lib import utils, logger
 import constants
 
-class PoseSubsystem(Subsystem):
+class LocalizationSubsystem(Subsystem):
   def __init__(
       self,
       poseSensors: list[PoseSensor],

@@ -11,7 +11,7 @@ from lib.sensors.pose_sensor import PoseSensor
 from lib.sensors.beambreak_sensor import BeamBreakSensor
 from lib.sensors.object_sensor import ObjectSensor
 from subsystems.drive_subsystem import DriveSubsystem
-from subsystems.pose_subsystem import PoseSubsystem
+from subsystems.localization_subsystem import LocalizationSubsystem
 from subsystems.intake_subsystem import IntakeSubsystem
 from subsystems.launcher_arm_subsystem import LauncherArmSubsystem
 from subsystems.launcher_rollers_subsystem import LauncherRollersSubsystem
@@ -78,7 +78,7 @@ class RobotContainer:
     self.driveSubsystem = DriveSubsystem(
       lambda: self.gyroSensor.getHeading()
     )
-    self.poseSubsystem = PoseSubsystem(
+    self.localizationSubsystem = LocalizationSubsystem(
       self.poseSensors,
       lambda: self.gyroSensor.getRotation(),
       lambda: self.driveSubsystem.getSwerveModulePositions()
@@ -172,7 +172,7 @@ class RobotContainer:
       lightsMode = LightsMode.IntakeNotReady
     else:
       if utils.getRobotState() == RobotState.Disabled:
-        if self.poseSubsystem.hasVisionTargets():
+        if self.localizationSubsystem.hasVisionTargets():
           lightsMode = LightsMode.VisionNotReady
       else:
         if self.driveSubsystem.isAlignedToTarget() and self.launcherArmSubsystem.isAlignedToTarget():
@@ -188,8 +188,8 @@ class RobotContainer:
 
   def _setupAutos(self) -> None:
     AutoBuilder.configureHolonomic(
-      lambda: self.poseSubsystem.getPose(), 
-      lambda: self.poseSubsystem.resetPose(), 
+      lambda: self.localizationSubsystem.getPose(), 
+      lambda: self.localizationSubsystem.resetPose(), 
       lambda: self.driveSubsystem.getSpeeds(), 
       lambda: self.driveSubsystem.drive(), 
       HolonomicPathFollowerConfig(
@@ -267,7 +267,7 @@ class RobotContainer:
 
   def teleopInit(self) -> None:
     self._resetRobot()
-    self.gyroSensor.setRobotToField(self.poseSubsystem.getPose())
+    self.gyroSensor.setRobotToField(self.localizationSubsystem.getPose())
 
   def testInit(self) -> None:
     self._resetRobot()

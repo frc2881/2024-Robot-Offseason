@@ -36,8 +36,7 @@ class LauncherRollersSubsystem(Subsystem):
         self._bottomRollerMotor.set(rollersSpeeds.bottom * self._constants.kBottomRollerMotorMaxForwardOutput)
       ],
       lambda: [
-        self._topRollerMotor.set(0),
-        self._bottomRollerMotor.set(0)
+        self.reset()
       ]
     )
 
