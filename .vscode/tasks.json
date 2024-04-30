@@ -2,46 +2,38 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Deploy Robot Code",
+      "label": "RobotPy: 4 - Deploy Robot Code",
       "type": "shell",
+      "command": "python3 -m robotpy sim --nc --skip-tests",
       "windows": {
         "command": "py -3 -m robotpy deploy --nc-ds --skip-tests --robot 10.28.81.2"
       },
-      "linux": {
-        "command": "python3 -m robotpy sim --nc --skip-tests"
-      },
       "problemMatcher": []
     },
     {
-      "label": "Simulate Robot Code",
+      "label": "RobotPy: 3 - Simulate Robot Code",
       "type": "shell",
+      "command": "python3 -m robotpy sim",
       "windows": {
         "command": "py -3 -m robotpy sim"
       },
-      "linux": {
-        "command": "python3 -m robotpy sim"
-      },
       "problemMatcher": []
     },
     {
-      "label": "Install / Upgrade RobotPy",
+      "label": "RobotPy: 1 - Install / Upgrade RobotPy",
       "type": "shell",
+      "command": "python3 -m pip install --upgrade robotpy", 
       "windows": {
-        "command": "py -3 -m pip install --user --upgrade robotpy"
-      },
-      "linux": {
-        "command": "python3 -m pip install --user --upgrade robotpy"
+        "command": "py -3 -m pip install --upgrade robotpy"
       },
       "problemMatcher": []
     },
     {
-      "label": "Download RobotPy for roboRIO",
+      "label": "RobotPy: 2 - Download RobotPy for roboRIO",
       "type": "shell",
+      "command": "python3 -m robotpy sync",
       "windows": {
         "command": "py -3 -m robotpy sync"
-      },
-      "linux": {
-        "command": "python3 -m robotpy sync"
       },
       "problemMatcher": []
     }
