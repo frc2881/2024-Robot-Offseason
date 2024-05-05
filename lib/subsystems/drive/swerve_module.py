@@ -62,9 +62,9 @@ class SwerveModule:
     utils.validateParam(self._turningMotor.burnFlash())
 
   def setTargetState(self, targetState: SwerveModuleState) -> None:
-    targetState.angle = targetState.angle + Rotation2d(self._turningOffset)
+    targetState.angle = targetState.angle.__add__(Rotation2d(self._turningOffset))
     targetState = SwerveModuleState.optimize(targetState, Rotation2d(self._turningEncoder.getPosition()))
-    targetState.speed *= (targetState.angle - Rotation2d(-self._turningEncoder.getPosition())).cos()
+    targetState.speed *= targetState.angle.__sub__(Rotation2d(self._turningEncoder.getPosition())).cos()
     self._drivingPIDController.setReference(targetState.speed, CANSparkBase.ControlType.kVelocity)
     self._turningPIDController.setReference(targetState.angle.radians(), CANSparkBase.ControlType.kPosition)
     self._setSpeed = targetState.speed

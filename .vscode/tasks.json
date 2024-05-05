@@ -31,9 +31,9 @@
     {
       "label": "RobotPy: 4 - Deploy Robot Code",
       "type": "shell",
-      "command": "python3 -m robotpy sim --nc --skip-tests",
+      "command": "python3 -m robotpy sim --skip-tests",
       "windows": {
-        "command": "py -3 -m robotpy deploy --nc-ds --skip-tests --robot 10.28.81.2"
+        "command": "py -3 -m robotpy deploy --skip-tests --robot 10.28.81.2"
       },
       "problemMatcher": []
     }

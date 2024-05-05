@@ -150,8 +150,8 @@ class RobotContainer:
     # self.operatorController.b().whileTrue(cmd.none())
     # self.operatorController.y().whileTrue(cmd.none())
     # self.operatorController.x().whileTrue(cmd.none())
-    self.operatorController.start().onTrue(self.climberSubsystem.resetToZeroCommand())
-    self.operatorController.back().onTrue(self.launcherArmSubsystem.resetToZeroCommand())
+    self.operatorController.start().whileTrue(self.climberSubsystem.resetToZeroCommand())
+    self.operatorController.back().whileTrue(self.launcherArmSubsystem.resetToZeroCommand())
 
   def _setupTriggers(self) -> None:
     self._setLightsModeTrigger()

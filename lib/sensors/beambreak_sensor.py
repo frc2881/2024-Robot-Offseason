@@ -13,7 +13,7 @@ class BeamBreakSensor:
 
   def hasTarget(self) -> bool:
     hasTarget = not self._digitalInput.get()
-    if hasTarget and not self._isTriggered:
+    if hasTarget and not self.isTriggered:
       self.isTriggered = True
     return hasTarget
   

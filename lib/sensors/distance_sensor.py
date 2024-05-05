@@ -19,7 +19,7 @@ class DistanceSensor:
 
   def hasTarget(self) -> bool:
     hasTarget = utils.isValueInRange(self.getDistance(), self._minTargetDistance, self._maxTargetDistance)
-    if hasTarget and not self._isTriggered:
+    if hasTarget and not self.isTriggered:
       self.isTriggered = True
     return hasTarget
   

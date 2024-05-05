@@ -27,7 +27,7 @@ class DriveSubsystem(Subsystem):
       self._constants.kSwerveModuleFrontLeftDrivingMotorCANId,
       self._constants.kSwerveModuleFrontLeftTurningMotorCANId,
       self._constants.kSwerveModuleFrontLeftOffset,
-      self._constants.SwerveModule
+      self._constants.SwerveModule 
     )
 
     self._swerveModuleFrontRight = SwerveModule(
@@ -128,22 +128,24 @@ class DriveSubsystem(Subsystem):
 
   def _driveWithController(self, speedX: float, speedY: float, speedRotation: float) -> None:
     if self._driftCorrection == DriveDriftCorrection.Enabled:
-      isTranslating: bool = speedX != 0 and speedY != 0
+      isTranslating: bool = speedX != 0 or speedY != 0
       isRotating: bool = speedRotation != 0
       if isTranslating and not isRotating and not self._isDriftCorrectionActive:
         self._isDriftCorrectionActive = True
         self._driftCorrectionThetaController.reset()
         self._driftCorrectionThetaController.setSetpoint(self._getGyroHeading())
-      elif isRotating and not isTranslating:
+      elif isRotating or not isTranslating:
         self._isDriftCorrectionActive = False
       if self._isDriftCorrectionActive:
         speedRotation: float = self._driftCorrectionThetaController.calculate(self._getGyroHeading())
         if self._driftCorrectionThetaController.atSetpoint():
-          speedRotation = 0.0
+          speedRotation = 0
+
     if self._speedMode == DriveSpeedMode.Training:
       speedX: float = self._driveInputXFilter.calculate(speedX * self._constants.kDriveInputLimiter)
       speedY: float = self._driveInputYFilter.calculate(speedY * self._constants.kDriveInputLimiter)
       speedRotation: float = self._driveInputRotFilter.calculate(speedRotation * self._constants.kDriveInputLimiter)
+
     self._drive(speedX, speedY, speedRotation)      
 
   def _drive(self, speedX: float, speedY: float, speedRotation: float) -> None:
@@ -161,6 +163,14 @@ class DriveSubsystem(Subsystem):
         ChassisSpeeds.discretize(chassisSpeeds, 0.02)
       )
     )
+
+  def _setSwerveModuleStates(self, swerveModuleStates: tuple[SwerveModuleState, ...]) -> None:
+    SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, self._constants.kMaxSpeedMetersPerSecond)
+    frontLeft, frontRight, rearLeft, rearRight = swerveModuleStates
+    self._swerveModuleFrontLeft.setTargetState(frontLeft)
+    self._swerveModuleFrontRight.setTargetState(frontRight)
+    self._swerveModuleRearLeft.setTargetState(rearLeft)
+    self._swerveModuleRearRight.setTargetState(rearRight)
 
   def getSpeeds(self) -> ChassisSpeeds:
     return self._constants.kSwerveDriveKinematics.toChassisSpeeds(self._getSwerveModuleStates())
@@ -181,13 +191,6 @@ class DriveSubsystem(Subsystem):
       self._swerveModuleRearRight.getState()
     )
   
-  def _setSwerveModuleStates(self, swerveModuleStates: tuple[SwerveModuleState, ...]) -> None:
-    SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, self._constants.kMaxSpeedMetersPerSecond)
-    self._swerveModuleFrontLeft.setTargetState(swerveModuleStates[0])
-    self._swerveModuleFrontRight.setTargetState(swerveModuleStates[1])
-    self._swerveModuleRearLeft.setTargetState(swerveModuleStates[2])
-    self._swerveModuleRearRight.setTargetState(swerveModuleStates[3])
-
   def _setIdleMode(self, idleMode: CANSparkBase.IdleMode):
     self._swerveModuleFrontLeft.setIdleMode(idleMode)
     self._swerveModuleFrontRight.setIdleMode(idleMode)

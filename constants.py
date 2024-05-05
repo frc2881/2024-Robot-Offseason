@@ -279,4 +279,3 @@ class Game:
     }
 
     kPickupTimeout: units.seconds = 4.5
-
