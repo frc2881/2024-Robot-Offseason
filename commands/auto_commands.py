@@ -53,10 +53,10 @@ class AutoCommands:
   def test(self) -> Command:
     return cmd.sequence(
       AutoBuilder.pathfindThenFollowPath(
-        constants.Game.Auto.kPaths.get(AutoPath.Default),
+        constants.Game.Auto.kPaths.get(AutoPath.Test),
         PathConstraints(1.5, 1.5, units.degreesToRadians(270), units.degreesToRadians(360))
       )
-    ).withName("Default")
+    ).withName("Test")
 
   def auto0(self) -> Command:
     return cmd.sequence(
