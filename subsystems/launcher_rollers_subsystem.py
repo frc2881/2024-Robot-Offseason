@@ -30,7 +30,7 @@ class LauncherRollersSubsystem(Subsystem):
     self._updateTelemetry()
 
   def runCommand(self, rollersSpeeds: LauncherRollersSpeeds) -> Command:
-    self.startEnd(
+    return self.startEnd(
       lambda: [
         self._topRollerMotor.set(rollersSpeeds.top * self._constants.kTopRollerMotorMaxReverseOutput),
         self._bottomRollerMotor.set(rollersSpeeds.bottom * self._constants.kBottomRollerMotorMaxForwardOutput)

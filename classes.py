@@ -2,6 +2,7 @@ from enum import Enum, auto
 from dataclasses import dataclass
 
 class AutoPath(Enum):
+  Test = auto()
   ScorePreload1 = auto()
   ScorePreload2 = auto()
   ScorePreload3 = auto()

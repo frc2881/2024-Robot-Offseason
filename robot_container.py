@@ -172,7 +172,7 @@ class RobotContainer:
       lightsMode = LightsMode.IntakeNotReady
     else:
       if utils.getRobotState() == RobotState.Disabled:
-        if self.localizationSubsystem.hasVisionTargets():
+        if not self.localizationSubsystem.hasVisionTargets():
           lightsMode = LightsMode.VisionNotReady
       else:
         if self.driveSubsystem.isAlignedToTarget() and self.launcherArmSubsystem.isAlignedToTarget():
@@ -188,16 +188,16 @@ class RobotContainer:
 
   def _setupAutos(self) -> None:
     AutoBuilder.configureHolonomic(
-      lambda: self.localizationSubsystem.getPose(), 
-      lambda: self.localizationSubsystem.resetPose(), 
-      lambda: self.driveSubsystem.getSpeeds(), 
-      lambda: self.driveSubsystem.drive(), 
+      self.localizationSubsystem.getPose, 
+      self.localizationSubsystem.resetPose, 
+      self.driveSubsystem.getSpeeds, 
+      self.driveSubsystem.drive, 
       HolonomicPathFollowerConfig(
         constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
         constants.Subsystems.Drive.kPathFollowerRotationPIDConstants,
         constants.Subsystems.Drive.kMaxSpeedMetersPerSecond, 
         constants.Subsystems.Drive.kDriveBaseRadius, 
-        ReplanningConfig(True, True)
+        ReplanningConfig(True, False)
       ),
       lambda: utils.getAlliance() == Alliance.Red,
       self.driveSubsystem
@@ -205,6 +205,8 @@ class RobotContainer:
 
     self._autoChooser = SendableChooser()
     self._autoChooser.setDefaultOption("None", lambda: cmd.none())
+
+    self._autoChooser.addOption("Test", lambda: self.autoCommands.test())
 
     self._autoChooser.addOption("[ 1 ] 0", lambda: self.autoCommands.auto0())
     self._autoChooser.addOption("[ 1 ] 0_1", lambda: self.autoCommands.auto10_1())

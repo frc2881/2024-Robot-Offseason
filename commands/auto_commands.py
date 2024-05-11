@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING
 from commands2 import Command, cmd
+from wpimath import units
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath
+from pathplannerlib.pathfinding import PathConstraints
 if TYPE_CHECKING: from commands.game_commands import GameCommands
 from classes import AutoPath
 import constants
@@ -47,6 +49,14 @@ class AutoCommands:
   # ######################################################################
   # ################################ AUTOS ###############################
   # ######################################################################
+
+  def test(self) -> Command:
+    return cmd.sequence(
+      AutoBuilder.pathfindThenFollowPath(
+        constants.Game.Auto.kPaths.get(AutoPath.Default),
+        PathConstraints(1.5, 1.5, units.degreesToRadians(270), units.degreesToRadians(360))
+      )
+    ).withName("Default")
 
   def auto0(self) -> Command:
     return cmd.sequence(

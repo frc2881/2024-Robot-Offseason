@@ -255,6 +255,7 @@ class Game:
 
   class Auto:
     kPaths: dict[AutoPath, PathPlannerPath] = {
+      AutoPath.Test: PathPlannerPath.fromPathFile(AutoPath.Test.name),
       AutoPath.ScorePreload1: PathPlannerPath.fromPathFile(AutoPath.ScorePreload1.name),
       AutoPath.ScorePreload2: PathPlannerPath.fromPathFile(AutoPath.ScorePreload2.name),
       AutoPath.ScorePreload3: PathPlannerPath.fromPathFile(AutoPath.ScorePreload3.name),
