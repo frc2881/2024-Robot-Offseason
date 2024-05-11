@@ -188,16 +188,16 @@ class RobotContainer:
 
   def _setupAutos(self) -> None:
     AutoBuilder.configureHolonomic(
-      self.localizationSubsystem.getPose, 
-      self.localizationSubsystem.resetPose, 
-      self.driveSubsystem.getSpeeds, 
-      self.driveSubsystem.drive, 
+      lambda: self.localizationSubsystem.getPose(), 
+      lambda pose: self.localizationSubsystem.resetPose(pose), 
+      lambda: self.driveSubsystem.getSpeeds(), 
+      lambda chassisSpeeds: self.driveSubsystem.drive(chassisSpeeds), 
       HolonomicPathFollowerConfig(
         constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
         constants.Subsystems.Drive.kPathFollowerRotationPIDConstants,
         constants.Subsystems.Drive.kMaxSpeedMetersPerSecond, 
         constants.Subsystems.Drive.kDriveBaseRadius, 
-        ReplanningConfig(True, False)
+        ReplanningConfig()
       ),
       lambda: utils.getAlliance() == Alliance.Red,
       self.driveSubsystem
