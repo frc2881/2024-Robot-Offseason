@@ -183,7 +183,7 @@ class RobotContainer:
     Trigger(
       lambda: utils.isValueInRange(utils.getMatchTime(), 0.1, 1.0)
     ).onTrue(
-      lambda: self.climberSubsystem.lockArmCommand().withTimeout(3.0)
+      self.climberSubsystem.lockArmCommand().withTimeout(3.0).withName("TriggerLockClimberArm")
     )
 
   def _setupAutos(self) -> None:
