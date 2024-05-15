@@ -2,39 +2,27 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "RobotPy: 1 - Install / Upgrade RobotPy",
+      "label": "RobotPy: Step 4 - Deploy Robot Code",
       "type": "shell",
-      "command": "python3 -m pip install --user --upgrade robotpy", 
-      "windows": {
-        "command": "py -3 -m pip install --upgrade robotpy"
-      },
+      "command": "python -m robotpy deploy --skip-tests --robot 10.28.81.2",
       "problemMatcher": []
     },
     {
-      "label": "RobotPy: 2 - Download RobotPy for roboRIO",
+      "label": "RobotPy: Step 3 - Simulate Robot Code (Optional)",
       "type": "shell",
-      "command": "python3 -m robotpy sync",
-      "windows": {
-        "command": "py -3 -m robotpy sync"
-      },
+      "command": "python -m robotpy sim",
       "problemMatcher": []
     },
     {
-      "label": "RobotPy: 3 - Simulate Robot Code",
+      "label": "RobotPy: Step 2 - Download & Sync RobotPy for roboRIO",
       "type": "shell",
-      "command": "python3 -m robotpy sim",
-      "windows": {
-        "command": "py -3 -m robotpy sim"
-      },
+      "command": "python -m robotpy sync --use-certifi",
       "problemMatcher": []
     },
     {
-      "label": "RobotPy: 4 - Deploy Robot Code",
+      "label": "RobotPy: Step 1 - Install / Upgrade RobotPy",
       "type": "shell",
-      "command": "python3 -m robotpy sim --skip-tests",
-      "windows": {
-        "command": "py -3 -m robotpy deploy --skip-tests --robot 10.28.81.2"
-      },
+      "command": "python -m pip install --upgrade robotpy certifi", 
       "problemMatcher": []
     }
   ]
