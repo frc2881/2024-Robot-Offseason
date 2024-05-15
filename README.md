@@ -6,9 +6,8 @@ Source code for the 2024 FRC competition robot migrated from Java to Python (Rob
 ## Installation & Deployment
 * Follow the official documentation for installing Python in your development environment (if Python 3.12 is not already installed): https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/python-setup.html
 * Open this project in VSCode and install the Python extension (including extension pack items Pylance and Python Debugger): https://marketplace.visualstudio.com/items?itemName=ms-python.python
-* Open a new Terminal in VSCode and create a Python virtual environment for the project
-  * Windows: `py -3 -m venv env --system-site-packages`
-  * macOS / Linux: `python3 -m venv env --system-site-packages`
+* Open the VSCode Command Palette (Ctrl/Command-Shift-P) -> `Python: Create Environment` to create a local Python virtual environment for the project using the installed Python 3.12 interpreter
+* Close and reopen the VSCode project to load the newly created Python virtual environment
 * Open the VSCode Command Palette (Ctrl/Command-Shift-P) -> `Tasks: Run Task` to access and run the configured user tasks for the project:
   * `RobotPy: Step 1 - Install / Upgrade RobotPy`
   * `RobotPy: Step 2 - Download & Sync RobotPy for roboRIO`
