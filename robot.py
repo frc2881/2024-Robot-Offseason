@@ -13,8 +13,13 @@ class Robot(TimedCommandRobot):
     self._robotContainer = RobotContainer()
 
   def robotPeriodic(self) -> None:
-    CommandScheduler.getInstance().run()
-    self._robotContainer.updateTelemetry()
+    try:
+      CommandScheduler.getInstance().run()
+      self._robotContainer.updateTelemetry()
+    except:
+      CommandScheduler.getInstance().cancelAll()
+      self._robotContainer._resetRobot()
+      logger.exception()
 
   def disabledInit(self) -> None:
     logger.mode(RobotMode.Disabled)

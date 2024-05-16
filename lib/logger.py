@@ -1,3 +1,4 @@
+import traceback
 from wpilib import DataLogManager, DriverStation, Timer, SmartDashboard
 from commands2 import CommandScheduler
 from lib.classes import RobotMode
@@ -34,3 +35,6 @@ def error(message: str) -> None:
   log(f'!!!!!!!!!! ERROR: {message} !!!!!!!!!!')
   SmartDashboard.putBoolean("Robot/Errors/HasError", True)
   SmartDashboard.putString("Robot/Errors/LastError", message)
+
+def exception() -> None:
+  error(traceback.format_exc())
