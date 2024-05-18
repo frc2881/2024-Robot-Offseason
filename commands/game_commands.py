@@ -22,7 +22,7 @@ class GameCommands:
       ),
       cmd.waitSeconds(constants.Subsystems.Intake.kIntakeAdjustmentDelay),
       self.robot.intakeSubsystem.adjustPositionCommand(lambda: self.robot.launcherTopBeamBreakSensor.hasTarget()),
-      cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver), cmd.none(), lambda: not utils.isAutonomousMode())
+      cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short), cmd.none(), lambda: not utils.isAutonomousMode())
     ).withName("RunIntake")
   
   def ejectIntakeCommand(self) -> Command:
@@ -37,12 +37,14 @@ class GameCommands:
 
   def alignRobotToTargetCommand(self) -> Command:
     return cmd.sequence(
-      cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Operator), cmd.none(), lambda: not utils.isAutonomousMode()),
-      self.robot.driveSubsystem.alignToTargetCommand(
-        lambda: self.robot.localizationSubsystem.getPose(), 
-        lambda: self.robot.localizationSubsystem.getTargetYaw()
-      ).withTimeout(utils.getValueForRobotMode(2.0, float("inf"))),
-      cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver), cmd.none(), lambda: not utils.isAutonomousMode())
+      cmd.parallel(
+        self.robot.driveSubsystem.alignToTargetCommand(
+          lambda: self.robot.localizationSubsystem.getPose(), 
+          lambda: self.robot.localizationSubsystem.getTargetYaw()
+        ).withTimeout(utils.getValueForRobotMode(2.0, float("inf"))),
+        cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short), cmd.none(), lambda: not utils.isAutonomousMode())
+      ),
+      cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short), cmd.none(), lambda: not utils.isAutonomousMode())
     ).withName("AlignRobotToTarget")
 
   def alignLauncherToTargetCommand(self) -> Command:
@@ -92,15 +94,14 @@ class GameCommands:
       cmd.sequence(
         cmd.waitSeconds(2.5),
         self.robot.climberSubsystem.lockArmCommand().withTimeout(3.0),
-        self.rumbleControllersCommand(ControllerRumbleMode.Driver).withTimeout(1.0)
+        self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
       )
     ).withName("RunClimberEngageCommand")
   
-  def rumbleControllersCommand(self, mode: ControllerRumbleMode) -> Command:
+  def rumbleControllersCommand(self, mode: ControllerRumbleMode, pattern: ControllerRumblePattern) -> Command:
     return cmd.parallel(
-      self.robot.driverController.rumbleCommand(ControllerRumblePattern.Short)
+      self.robot.driverController.rumbleCommand(pattern)
       .onlyIf(lambda: mode == ControllerRumbleMode.Driver or mode == ControllerRumbleMode.Both),
-      self.robot.operatorController.rumbleCommand(ControllerRumblePattern.Short)
+      self.robot.operatorController.rumbleCommand(pattern)
       .onlyIf(lambda: mode == ControllerRumbleMode.Operator or mode == ControllerRumbleMode.Both)
-    )\
-    .withName("RumbleControllers")
+    ).withName("RumbleControllers")

@@ -43,9 +43,16 @@ class GameController(CommandXboxController):
     if RobotBase.isReal():
       match pattern:
         case ControllerRumblePattern.Short:
-          return cmd.startEnd(
-            lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1.0),
-            lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0.0)
+          return cmd.sequence(
+            cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1)),
+            cmd.waitSeconds(0.5),
+            cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0)),
+          )
+        case ControllerRumblePattern.Long:
+          return cmd.sequence(
+            cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1)),
+            cmd.waitSeconds(1.5),
+            cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0)),
           )
         case _:
           return cmd.none()
