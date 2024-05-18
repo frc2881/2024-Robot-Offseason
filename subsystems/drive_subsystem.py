@@ -233,7 +233,11 @@ class DriveSubsystem(Subsystem):
     if self._targetAlignmentThetaController.atSetpoint():
       speedRotation = 0
       self._isAlignedToTarget = True
-    self._drive(0, 0, speedRotation)
+    self._setSwerveModuleStates(
+      self._constants.kSwerveDriveKinematics.toSwerveModuleStates(
+        ChassisSpeeds(0, 0, speedRotation)
+      )
+    )
 
   def isAlignedToTarget(self) -> bool:
     return self._isAlignedToTarget
