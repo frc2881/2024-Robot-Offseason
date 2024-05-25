@@ -36,7 +36,7 @@ class Subsystems:
     kDriftCorrectionThetaControllerPositionTolerance: float = 0.5
     kDriftCorrectionThetaControllerVelocityTolerance: float = 0.5
 
-    kTargetAlignmentThetaControllerPIDConstants = PIDConstants(0.1, 0, 0.01, 0)
+    kTargetAlignmentThetaControllerPIDConstants = PIDConstants(0.075, 0, 0, 0)
     kTargetAlignmentThetaControllerPositionTolerance: float = 1.0
     kTargetAlignmentThetaControllerVelocityTolerance: float = 1.0
 
