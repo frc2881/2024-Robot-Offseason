@@ -6,10 +6,10 @@ robotpy_extras = [
   "commands2",
   "cscore",
   "pathplannerlib",
-  "photonvision",
   "rev",
   "sim"
 ]
 requires = [
+  "photonlibpy",
   "numpy"
 ]
