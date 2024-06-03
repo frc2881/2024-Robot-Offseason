@@ -210,7 +210,11 @@ class Sensors:
         Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-10.75), units.inchesToMeters(18.0)),
         Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(180.0))
       ),
-      "Side": Transform3d(
+      "Left": Transform3d(
+        Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-11.5), units.inchesToMeters(15.5)),
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-28.4), units.degreesToRadians(-90.0))
+      ),
+      "Right": Transform3d(
         Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-11.5), units.inchesToMeters(15.5)),
         Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-28.4), units.degreesToRadians(-90.0))
       )
