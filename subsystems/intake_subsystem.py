@@ -55,8 +55,7 @@ class IntakeSubsystem(Subsystem):
         self._runRollers(MotorDirection.Reverse)
       ], 
       lambda: None
-    )\
-    .until(
+    ).until(
       lambda: getLauncherBottomHasTarget()
     ).andThen(
       cmd.waitSeconds(

@@ -65,12 +65,12 @@ class ClimberSubsystem(Subsystem):
 
   def unlockArmCommand(self) -> Command:
     return cmd.runOnce(
-      self._brakeServo.setPosition(1.0)
+      lambda: self._brakeServo.setPosition(1.0)
     ).withName("UnlockClimberArm")
 
   def lockArmCommand(self) -> Command:
     return cmd.runOnce(
-      self._brakeServo.setPosition(0)
+      lambda: self._brakeServo.setPosition(0)
     ).withName("LockClimberArm")
 
   def resetToZeroCommand(self) -> Command:
