@@ -6,6 +6,7 @@ from lib import utils
 from lib.classes import Alliance, RobotState
 from lib.controllers.game_controller import GameController
 from lib.controllers.lights_controller import LightsController
+from lib.sensors.distance_sensor import DistanceSensor
 from lib.sensors.gyro_sensor import GyroSensor
 from lib.sensors.pose_sensor import PoseSensor
 from lib.sensors.beambreak_sensor import BeamBreakSensor
@@ -57,18 +58,33 @@ class RobotContainer:
         constants.Sensors.Pose.kFallbackPoseStrategy,
         constants.Game.Field.kAprilTagFieldLayout
       ))
-    self.launcherBottomBeamBreakSensor = BeamBreakSensor(
-      constants.Sensors.BeamBreak.LauncherBottom.kSensorName,
-      constants.Sensors.BeamBreak.LauncherBottom.kChannel
+    self.intakeDistanceSensor = DistanceSensor(
+      constants.Sensors.Distance.Intake.kSensorName,
+      constants.Sensors.Distance.Intake.kMinTargetDistance,
+      constants.Sensors.Distance.Intake.kMaxTargetDistance
     )
-    self.launcherTopBeamBreakSensor = BeamBreakSensor(
-      constants.Sensors.BeamBreak.LauncherTop.kSensorName,
-      constants.Sensors.BeamBreak.LauncherTop.kChannel
+    self.launcherDistanceSensor = DistanceSensor(
+      constants.Sensors.Distance.Launcher.kSensorName,
+      constants.Sensors.Distance.Launcher.kMinTargetDistance,
+      constants.Sensors.Distance.Launcher.kMaxTargetDistance
     )
-    self.climberBeamBreakSensor = BeamBreakSensor(
-      constants.Sensors.BeamBreak.Climber.kSensorName,
-      constants.Sensors.BeamBreak.Climber.kChannel
+    self.climberDistanceSensor = DistanceSensor(
+      constants.Sensors.Distance.Climber.kSensorName,
+      constants.Sensors.Distance.Climber.kMinTargetDistance,
+      constants.Sensors.Distance.Climber.kMaxTargetDistance
     )
+    # self.launcherBottomBeamBreakSensor = BeamBreakSensor(
+    #   constants.Sensors.BeamBreak.LauncherBottom.kSensorName,
+    #   constants.Sensors.BeamBreak.LauncherBottom.kChannel
+    # )
+    # self.launcherTopBeamBreakSensor = BeamBreakSensor(
+    #   constants.Sensors.BeamBreak.LauncherTop.kSensorName,
+    #   constants.Sensors.BeamBreak.LauncherTop.kChannel
+    # )
+    # self.climberBeamBreakSensor = BeamBreakSensor(
+    #   constants.Sensors.BeamBreak.Climber.kSensorName,
+    #   constants.Sensors.BeamBreak.Climber.kChannel
+    # )
     self.objectSensor = ObjectSensor(
       constants.Sensors.Object.kCameraName,
       constants.Sensors.Object.kObjectName
@@ -159,7 +175,7 @@ class RobotContainer:
 
   def _setLightsModeTrigger(self) -> None:
     Trigger(
-      lambda: self.launcherBottomBeamBreakSensor.hasTarget()
+      lambda: self.launcherDistanceSensor.hasTarget()
     ).whileTrue(
       cmd.run(lambda: self._setLightsMode()).ignoringDisable(True)
     ).onFalse(
@@ -168,7 +184,7 @@ class RobotContainer:
 
   def _setLightsMode(self) -> None:
     lightsMode: LightsMode = LightsMode.IntakeReady
-    if self.launcherTopBeamBreakSensor.hasTarget():
+    if self.intakeDistanceSensor.hasTarget():
       lightsMode = LightsMode.IntakeNotReady
     else:
       if utils.getRobotState() == RobotState.Disabled:
@@ -285,9 +301,9 @@ class RobotContainer:
     self.gyroSensor.updateTelemetry()
     for poseSensor in self.poseSensors:
       poseSensor.updateTelemetry()
-    self.launcherBottomBeamBreakSensor.updateTelemetry()
-    self.launcherTopBeamBreakSensor.updateTelemetry()
-    self.climberBeamBreakSensor.updateTelemetry()
+    self.intakeDistanceSensor.updateTelemetry()
+    self.launcherDistanceSensor.updateTelemetry()
+    self.climberDistanceSensor.updateTelemetry()
     self.objectSensor.updateTelemetry()
 
     SmartDashboard.putNumber("Robot/Power/TotalCurrent", self.powerDistribution.getTotalCurrent())

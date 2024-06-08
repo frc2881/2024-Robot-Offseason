@@ -13,9 +13,9 @@ class DistanceSensor:
     self._maxTargetDistance = maxTargetDistance
     
     self.isTriggered: bool = False
-
+ 
   def getDistance(self) -> float:
-    return SmartDashboard.getEntry(f'Robot/Sensor/Distance/{self._sensorName}').getFloat()
+    return SmartDashboard.getEntry(f'Robot/Sensor/Distance/{self._sensorName}').getFloat(-1.0)
 
   def hasTarget(self) -> bool:
     hasTarget = utils.isValueInRange(self.getDistance(), self._minTargetDistance, self._maxTargetDistance)

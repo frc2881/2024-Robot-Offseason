@@ -16,12 +16,12 @@ class GameCommands:
   def runIntakeCommand(self) -> Command:
     return cmd.sequence(
       self.robot.intakeSubsystem.runCommand(
-        lambda: self.robot.launcherBottomBeamBreakSensor.hasTarget()
+        lambda: self.robot.launcherDistanceSensor.hasTarget()
       ).deadlineWith(
         self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.kArmPositionIntake)
       ),
       cmd.waitSeconds(constants.Subsystems.Intake.kIntakeAdjustmentDelay),
-      self.robot.intakeSubsystem.adjustPositionCommand(lambda: self.robot.launcherTopBeamBreakSensor.hasTarget()),
+      # self.robot.intakeSubsystem.adjustPositionCommand(lambda: self.robot.launcherTopBeamBreakSensor.hasTarget()),
       cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short), cmd.none(), lambda: not utils.isAutonomousMode())
     ).withName("RunIntake")
   
@@ -71,9 +71,9 @@ class GameCommands:
         self.robot.intakeSubsystem.launchCommand()
       )
     ).onlyIf(
-      lambda: self.robot.launcherBottomBeamBreakSensor.hasTarget()
+      lambda: self.robot.launcherDistanceSensor.hasTarget()
     ).until(
-      lambda: not self.robot.launcherBottomBeamBreakSensor.hasTarget() and not self.robot.launcherTopBeamBreakSensor.hasTarget()
+      lambda: not self.robot.launcherDistanceSensor.hasTarget()
     ).finallyDo(lambda end: [
       self.robot.driveSubsystem.clearTargetAlignment(),
       self.robot.launcherArmSubsystem.clearTargetAlignment()
@@ -81,7 +81,7 @@ class GameCommands:
 
   def runClimberSetupCommand(self) -> Command:
     return cmd.sequence(
-      cmd.runOnce(lambda: self.robot.climberBeamBreakSensor.resetTrigger()),
+      cmd.runOnce(lambda: self.robot.climberDistanceSensor.resetTrigger()),
       cmd.parallel(
         self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.kArmPositionFlat),
         self.robot.climberSubsystem.moveArmUpCommand()

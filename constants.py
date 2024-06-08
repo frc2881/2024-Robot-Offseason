@@ -225,16 +225,30 @@ class Sensors:
     kVisionMultiTagStandardDeviations: tuple[float, ...] = [0.5, 0.5, 1.0]
     kVisionMaxPoseAmbiguity: float = 0.2
 
-  class BeamBreak:
-    class LauncherBottom:
-      kSensorName = "LauncherBottom"
-      kChannel: int = 7
-    class LauncherTop:
-      kSensorName = "LauncheTop"
-      kChannel: int = 5
+  class Distance:
+    class Intake:
+      kSensorName = "Intake"
+      kMinTargetDistance: float = 0
+      kMaxTargetDistance: float = 250
+    class Launcher:
+      kSensorName = "Launcher"
+      kMinTargetDistance: float = 0
+      kMaxTargetDistance: float = 250
     class Climber:
       kSensorName = "Climber"
-      kChannel: int = 3
+      kMinTargetDistance: float = 0
+      kMaxTargetDistance: float = 250
+
+  # class BeamBreak:
+  #   class LauncherBottom:
+  #     kSensorName = "LauncherBottom"
+  #     kChannel: int = 7
+  #   class LauncherTop:
+  #     kSensorName = "LauncheTop"
+  #     kChannel: int = 5
+  #   class Climber:
+  #     kSensorName = "Climber"
+  #     kChannel: int = 3
 
   class Object:
     kCameraName = "Front"
