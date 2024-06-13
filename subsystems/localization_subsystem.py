@@ -29,12 +29,10 @@ class LocalizationSubsystem(Subsystem):
       Pose2d()
     )
 
-  def periodic(self) -> None:
-    self._updatePose()
-    self._updateTelemetry()
+    utils.addRobotPeriodic(lambda: [ self._updatePose() ], 0.033)
 
-  def getPose(self) -> Pose2d:
-    return self._poseEstimator.getEstimatedPosition()
+  def periodic(self) -> None:
+    self._updateTelemetry()
 
   def _updatePose(self) -> None:
     self._poseEstimator.update(self._getGyroRotation(), self._getSwerveModulePositions())
@@ -54,6 +52,9 @@ class LocalizationSubsystem(Subsystem):
               if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Sensors.Pose.kVisionMaxPoseAmbiguity):
                 self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Sensors.Pose.kVisionSingleTagStandardDeviations)
                 break
+
+  def getPose(self) -> Pose2d:
+    return self._poseEstimator.getEstimatedPosition()
 
   def resetPose(self, pose: Pose2d) -> None:
     # NO-OP as current pose is always maintained by pose sensors in the configuration for this robot
@@ -120,7 +121,7 @@ class LocalizationSubsystem(Subsystem):
 
   def _updateTelemetry(self) -> None:
     robotPose = self.getPose()
-    SmartDashboard.putNumberArray("Robot/Pose/Current", [robotPose.X(), robotPose.Y(), robotPose.rotation().degrees()])
-    SmartDashboard.putNumber("Robot/Pose/Target/Yaw", self.getTargetYaw())
-    SmartDashboard.putNumber("Robot/Pose/Target/Pitch", self.getTargetPitch())
-    SmartDashboard.putNumber("Robot/Pose/Target/Distance", self.getTargetDistance())
+    SmartDashboard.putNumberArray("Robot/Localization/Pose", [robotPose.X(), robotPose.Y(), robotPose.rotation().degrees()])
+    SmartDashboard.putNumber("Robot/Localization/Target/Yaw", self.getTargetYaw())
+    SmartDashboard.putNumber("Robot/Localization/Target/Pitch", self.getTargetPitch())
+    SmartDashboard.putNumber("Robot/Localization/Target/Distance", self.getTargetDistance())

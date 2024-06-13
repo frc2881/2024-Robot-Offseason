@@ -1,4 +1,5 @@
 from wpilib import DigitalInput, SmartDashboard
+from lib import utils, logger
 
 class BeamBreakSensor:
   def __init__(
@@ -7,19 +8,25 @@ class BeamBreakSensor:
       channel: int
     ) -> None:
     self._sensorName = sensorName
-    self._digitalInput = DigitalInput(channel)
     
-    self.isTriggered: bool = False
+    self._baseKey = f'Robot/Sensor/BeamBreak/{self._sensorName}'
+    self._digitalInput = DigitalInput(channel)
+    self._isTriggered: bool = False
+
+    utils.addRobotPeriodic(self._updateTelemetry)
 
   def hasTarget(self) -> bool:
     hasTarget = not self._digitalInput.get()
-    if hasTarget and not self.isTriggered:
-      self.isTriggered = True
+    if hasTarget and not self._isTriggered:
+      self._isTriggered = True
     return hasTarget
   
-  def resetTrigger(self) -> None:
-    self.isTriggered = False
+  def isTriggered(self) -> bool:
+    return self._isTriggered
 
-  def updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean(f'Robot/Sensor/BeamBreak/{self._sensorName}/HasTarget', self.hasTarget())
-    SmartDashboard.putBoolean(f'Robot/Sensor/BeamBreak/{self._sensorName}/IsTriggered', self.isTriggered)
+  def resetTrigger(self) -> None:
+    self._isTriggered = False
+
+  def _updateTelemetry(self) -> None:
+    SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())
+    SmartDashboard.putBoolean(f'{self._baseKey}/IsTriggered', self.isTriggered())

@@ -1,12 +1,11 @@
 import math
 from wpilib import Timer, DriverStation, RobotController, SmartDashboard, LiveWindow
-from commands2 import TimedCommandRobot
 from lib import utils
 
-def start(robot: TimedCommandRobot) -> None:
-  robot.addPeriodic(_updateTimingInfo, 0.333, 0.333)
-  robot.addPeriodic(_updateRobotInfo, 1.0, 0.333)
-  robot.addPeriodic(_updateTelemetrySetting, 3.0, 0.333)
+def start() -> None:
+  utils.addRobotPeriodic(_updateRobotInfo, 1.0, 0.25)
+  utils.addRobotPeriodic(_updateTimingInfo, 0.25, 0.5)
+  utils.addRobotPeriodic(_updateTelemetrySetting, 3.0, 0.75)
 
 def _updateTimingInfo() -> None:
   SmartDashboard.putNumber("Robot/FPGATimestamp", Timer.getFPGATimestamp())

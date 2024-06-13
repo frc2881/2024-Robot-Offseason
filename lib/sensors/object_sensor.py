@@ -1,8 +1,8 @@
 import math
 from wpilib import SmartDashboard
+from photonlibpy.photonTrackedTarget import PhotonTrackedTarget
 from photonlibpy.photonCamera import PhotonCamera
 from lib import utils
-from lib.classes import ObjectTargetInfo
 
 class ObjectSensor:
   def __init__(
@@ -13,19 +13,27 @@ class ObjectSensor:
     self._cameraName = cameraName
     self._objectName = objectName
 
+    self._baseKey = f'Robot/Sensor/Object/{self._cameraName}/{self._objectName}'
     self._photonCamera = PhotonCamera(cameraName)
+    self._hasTarget = False
 
-  def hasTarget(self) -> bool:
-    return self._photonCamera.getLatestResult().hasTargets() if self._photonCamera.isConnected() else False
+    utils.addRobotPeriodic(self._updateTelemetry)
 
-  def getTargetInfo(self) -> ObjectTargetInfo:
+  def getTargetInfo(self) -> PhotonTrackedTarget:
     if self._photonCamera.isConnected():
       result = self._photonCamera.getLatestResult()
       if result.hasTargets():
-        return ObjectTargetInfo(result.getTargets()[0].getYaw(), result.getTargets()[0].getArea())
-    return ObjectTargetInfo(math.nan, math.nan)
-  
-  def updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean(f'Robot/Sensor/Object/{self._cameraName}/{self._objectName}/IsConnected', self._photonCamera.isConnected())
-    SmartDashboard.putBoolean(f'Robot/Sensor/Object/{self._cameraName}/{self._objectName}/HasTarget', self.hasTarget())
-    SmartDashboard.putString(f'Robot/Sensor/Object/{self._cameraName}/{self._objectName}/TargetInfo', utils.toJson(self.getTargetInfo()))
+        self._hasTarget = True
+        return result.getTargets()[0]
+    self._hasTarget = False
+    return PhotonTrackedTarget()
+
+  def hasTarget(self) -> bool:
+    return self._hasTarget
+
+  def _updateTelemetry(self) -> None:
+    targetInfo = self.getTargetInfo()
+    SmartDashboard.putBoolean(f'{self._baseKey}/IsConnected', self._photonCamera.isConnected())
+    SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())
+    SmartDashboard.putNumber(f'{self._baseKey}/Target/Yaw', targetInfo.getYaw())
+    SmartDashboard.putNumber(f'{self._baseKey}/Target/Area', targetInfo.getArea())

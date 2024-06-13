@@ -32,12 +32,16 @@ class LightsMode(Enum):
   IntakeNotReady = auto()
   LaunchReady = auto()
 
-@dataclass
+class IntakeDirection(Enum):
+  Front = auto()
+  Rear = auto()
+
+@dataclass(frozen=True)
 class LauncherArmPositionTarget:
   distance: float
   position: float
 
-@dataclass
+@dataclass(frozen=True)
 class LauncherRollersSpeeds:
   top: float
   bottom: float

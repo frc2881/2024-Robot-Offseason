@@ -1,5 +1,6 @@
+from ntcore import NetworkTableInstance, PubSubOptions
 from wpilib import SmartDashboard
-from lib import utils
+from lib import utils, logger
 
 class DistanceSensor:
   def __init__(
@@ -12,20 +13,27 @@ class DistanceSensor:
     self._minTargetDistance = minTargetDistance
     self._maxTargetDistance = maxTargetDistance
     
-    self.isTriggered: bool = False
- 
+    self._baseKey = f'Robot/Sensor/Distance/{self._sensorName}'
+    self._valueTopic = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(f'{self._baseKey}/Value').subscribe(-1.0, PubSubOptions(periodic=0.01))
+    self._isTriggered: bool = False
+
+    utils.addRobotPeriodic(self._updateTelemetry)
+
   def getDistance(self) -> float:
-    return SmartDashboard.getEntry(f'Robot/Sensor/Distance/{self._sensorName}').getFloat(-1.0)
+    return self._valueTopic.get()
 
   def hasTarget(self) -> bool:
     hasTarget = utils.isValueInRange(self.getDistance(), self._minTargetDistance, self._maxTargetDistance)
-    if hasTarget and not self.isTriggered:
-      self.isTriggered = True
+    if hasTarget and not self._isTriggered:
+      self._isTriggered = True
     return hasTarget
   
-  def resetTrigger(self) -> None:
-    self.isTriggered = False
+  def isTriggered(self) -> bool:
+    return self._isTriggered
 
-  def updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean(f'Robot/Sensor/Distance/{self._sensorName}/HasTarget', self.hasTarget())
-    SmartDashboard.putBoolean(f'Robot/Sensor/Distance/{self._sensorName}/IsTriggered', self.isTriggered)
+  def resetTrigger(self) -> None:
+    self._isTriggered = False
+
+  def _updateTelemetry(self) -> None:
+    SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())
+    SmartDashboard.putBoolean(f'{self._baseKey}/IsTriggered', self.isTriggered())

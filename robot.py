@@ -6,19 +6,25 @@ from lib.classes import RobotMode
 from robot_container import RobotContainer
 
 class Robot(TimedCommandRobot):
+  _instance: TimedCommandRobot = None
+
+  @staticmethod
+  def getInstance() -> TimedCommandRobot:
+    return Robot._instance
+
   def robotInit(self) -> None:
-    self._autonomousCommand = cmd.none()
+    Robot._instance = self
     logger.start()
-    telemetry.start(self)
+    telemetry.start()
+    self._autonomousCommand = cmd.none()
     self._robotContainer = RobotContainer()
 
   def robotPeriodic(self) -> None:
     try:
       CommandScheduler.getInstance().run()
-      self._robotContainer.updateTelemetry()
     except:
       CommandScheduler.getInstance().cancelAll()
-      self._robotContainer._resetRobot()
+      self._robotContainer.resetRobot()
       logger.exception()
 
   def disabledInit(self) -> None:

@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING
+from wpilib import RobotBase
 from commands2 import Command, cmd
 if TYPE_CHECKING: from robot_container import RobotContainer
 from lib import utils
 from lib.classes import ControllerRumbleMode, ControllerRumblePattern
-from classes import LauncherRollersSpeeds
+from classes import IntakeDirection, LauncherRollersSpeeds
 import constants
 
 class GameCommands:
@@ -13,27 +14,38 @@ class GameCommands:
     ) -> None:
     self.robot = robot
 
-  def runIntakeCommand(self) -> Command:
+  def runIntakeCommand(self, intakeDirection: IntakeDirection) -> Command:
     return cmd.sequence(
+      cmd.runOnce(lambda: [ 
+        self.robot.intakeDistanceSensor.resetTrigger(),
+        self.robot.launcherDistanceSensor.resetTrigger()
+      ]),
       self.robot.intakeSubsystem.runCommand(
-        lambda: self.robot.launcherDistanceSensor.hasTarget()
+        intakeDirection,
+        lambda: self.robot.intakeDistanceSensor.getDistance(),
+        lambda: self.robot.launcherDistanceSensor.getDistance()
       ).deadlineWith(
-        self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.kArmPositionIntake)
+        self.robot.launcherArmSubsystem.alignToPositionCommand(
+          constants.Subsystems.Launcher.kArmPositionIntakeMax
+        ).onlyIf(
+          lambda: self.robot.launcherArmSubsystem.getPosition() > constants.Subsystems.Launcher.kArmPositionIntakeMax
+        )
       ),
-      cmd.waitSeconds(constants.Subsystems.Intake.kIntakeAdjustmentDelay),
-      # self.robot.intakeSubsystem.adjustPositionCommand(lambda: self.robot.launcherTopBeamBreakSensor.hasTarget()),
-      cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short), cmd.none(), lambda: not utils.isAutonomousMode())
-    ).withName("RunIntake")
+      cmd.waitSeconds(0.1),
+      self.robot.intakeSubsystem.alignCommand(lambda: self.robot.launcherDistanceSensor.getDistance()),
+      self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
+    ).withName("GameCommands:RunIntake")
   
   def ejectIntakeCommand(self) -> Command:
-    return self.robot.intakeSubsystem.ejectCommand().withName("EjectIntake")
+    return self.robot.intakeSubsystem.ejectCommand().withName("GameCommands:EjectIntake")
   
+  # TODO: validate that reload is still needed and if it works correctly with the delay constant
   def reloadIntakeCommand(self) -> Command:
     return cmd.sequence(
       self.robot.intakeSubsystem.ejectCommand(),
-      cmd.waitSeconds(constants.Subsystems.Intake.kIntakeReloadDelay),
-      self.runIntakeCommand()
-    ).withName("ReloadIntake")
+      cmd.waitSeconds(constants.Subsystems.Intake.kReloadDelay),
+      self.runIntakeCommand(IntakeDirection.Front)
+    ).withName("GameCommands:ReloadIntake")
 
   def alignRobotToTargetCommand(self) -> Command:
     return cmd.sequence(
@@ -42,27 +54,32 @@ class GameCommands:
           lambda: self.robot.localizationSubsystem.getPose(), 
           lambda: self.robot.localizationSubsystem.getTargetYaw()
         ).withTimeout(utils.getValueForRobotMode(2.0, float("inf"))),
-        cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short), cmd.none(), lambda: not utils.isAutonomousMode())
+        self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short)
       ),
-      cmd.either(self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short), cmd.none(), lambda: not utils.isAutonomousMode())
-    ).withName("AlignRobotToTarget")
+      self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
+    ).withName("GameCommands:AlignRobotToTarget")
 
   def alignLauncherToTargetCommand(self) -> Command:
     return cmd.sequence(
       cmd.parallel(
         self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
-        self.robot.launcherRollersSubsystem.runCommand(constants.Subsystems.Launcher.kRollersSpeedsWarmup)
+        self.runLauncherWarmupCommand()
       ).withTimeout(utils.getValueForRobotMode(2.0, float("inf")))
-    ).withName("AlignLauncherToTarget")
+    ).withName("GameCommands:AlignLauncherToTarget")
 
   def alignLauncherToPositionCommand(self, position: float) -> Command:
     return cmd.sequence(
       cmd.parallel(
         self.robot.launcherArmSubsystem.alignToPositionCommand(position),
-        self.robot.launcherRollersSubsystem.runCommand(constants.Subsystems.Launcher.kRollersSpeedsWarmup)
+        self.runLauncherWarmupCommand()
       ).withTimeout(utils.getValueForRobotMode(2.0, float("inf")))
-    ).withName("AlignLauncherToPosition")
+    ).withName("GameCommands:AlignLauncherToPosition")
   
+  def runLauncherWarmupCommand(self) -> Command:
+    return self.robot.launcherRollersSubsystem.runCommand(
+      constants.Subsystems.Launcher.kRollersSpeedsWarmup
+    ).withName("GameCommands:RunLauncherWarmup")
+
   def runLauncherCommand(self, launcherRollerSpeeds: LauncherRollersSpeeds) -> Command:
     return cmd.parallel(
       self.robot.launcherRollersSubsystem.runCommand(launcherRollerSpeeds),
@@ -77,16 +94,16 @@ class GameCommands:
     ).finallyDo(lambda end: [
       self.robot.driveSubsystem.clearTargetAlignment(),
       self.robot.launcherArmSubsystem.clearTargetAlignment()
-    ]).withName("RunLauncher")
+    ]).withName("GameCommands:RunLauncher")
 
   def runClimberSetupCommand(self) -> Command:
     return cmd.sequence(
       cmd.runOnce(lambda: self.robot.climberDistanceSensor.resetTrigger()),
       cmd.parallel(
-        self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.kArmPositionFlat),
+        self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.kArmPositionClimber),
         self.robot.climberSubsystem.moveArmUpCommand()
       )
-    ).withName("RunClimberSetupCommand")
+    ).withName("GameCommands:RunClimberSetup")
   
   def runClimberEngageCommand(self) -> Command:
     return cmd.race(
@@ -96,12 +113,12 @@ class GameCommands:
         self.robot.climberSubsystem.lockArmCommand().withTimeout(3.0),
         self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
       )
-    ).withName("RunClimberEngageCommand")
+    ).withName("GameCommands:RunClimberEngage")
   
   def rumbleControllersCommand(self, mode: ControllerRumbleMode, pattern: ControllerRumblePattern) -> Command:
     return cmd.parallel(
-      self.robot.driverController.rumbleCommand(pattern)
-      .onlyIf(lambda: mode == ControllerRumbleMode.Driver or mode == ControllerRumbleMode.Both),
-      self.robot.operatorController.rumbleCommand(pattern)
-      .onlyIf(lambda: mode == ControllerRumbleMode.Operator or mode == ControllerRumbleMode.Both)
-    ).withName("RumbleControllers")
+      self.robot.driverController.rumbleCommand(pattern).onlyIf(lambda: mode == ControllerRumbleMode.Driver or mode == ControllerRumbleMode.Both),
+      self.robot.operatorController.rumbleCommand(pattern).onlyIf(lambda: mode == ControllerRumbleMode.Operator or mode == ControllerRumbleMode.Both)
+    ).onlyIf(
+      lambda: RobotBase.isReal() and not utils.isAutonomousMode()
+    ).withName("GameCommands:RumbleControllers")

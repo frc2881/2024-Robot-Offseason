@@ -50,28 +50,28 @@ class ClimberSubsystem(Subsystem):
     return self.startEnd(
       lambda: self._armLeftMotor.set(0.6),
       lambda: self._armLeftMotor.set(0)
-    ).withName("MoveClimberArmUp")
+    ).withName("ClimberSubsystem:MoveArmUp")
   
   def moveArmDownCommand(self) -> Command:
     return self.startEnd(
       lambda: self._armLeftMotor.set(-0.5),
       lambda: self._armLeftMotor.set(0)
-    ).withName("MoveClimberArmDown")
+    ).withName("ClimberSubsystem:MoveArmDown")
 
   def moveArmToDefaultPositionCommand(self) -> Command:
     return self.runOnce(
       lambda: self._armLeftPIDController.setReference(self._constants.kArmPositionDefault, CANSparkLowLevel.ControlType.kPosition)
-    ).withName("MoveClimberArmToDefaultPosition")
+    ).withName("ClimberSubsystem:MoveArmToDefaultPosition")
 
   def unlockArmCommand(self) -> Command:
     return cmd.runOnce(
-      lambda: self._brakeServo.setPosition(1.0)
-    ).withName("UnlockClimberArm")
+      lambda: self._brakeServo.set(1.0)
+    ).withName("ClimberSubsystem:UnlockArm")
 
   def lockArmCommand(self) -> Command:
     return cmd.runOnce(
-      lambda: self._brakeServo.setPosition(0)
-    ).withName("LockClimberArm")
+      lambda: self._brakeServo.set(0)
+    ).withName("ClimberSubsystem:LockArm")
 
   def resetToZeroCommand(self) -> Command:
     return self.startEnd(
@@ -88,17 +88,16 @@ class ClimberSubsystem(Subsystem):
         utils.enableSoftLimits(self._armRightMotor, True),
         setattr(self, "_hasInitialZeroReset", True)
       ]
-    ).withName("ResetClimberArmToZero")
+    ).withName("ClimberSubsystem:ResetArmToZero")
 
   def hasInitialZeroReset(self) -> bool:
     return self._hasInitialZeroReset
 
   def reset(self) -> None:
     self._armLeftMotor.set(0)
-    self._brakeServo.setPosition(1.0)
+    self._brakeServo.set(1.0)
     self._armLeftPIDController.setReference(self._constants.kArmPositionDefault, CANSparkBase.ControlType.kPosition)
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putNumber("Robot/Climber/Arm/Left/Position", self._armLeftEncoder.getPosition())
-    SmartDashboard.putNumber("Robot/Climber/Arm/Right/Position", self._armRightEncoder.getPosition())
-    SmartDashboard.putNumber("Robot/Climber/Brake/Position", self._brakeServo.getPosition())
+    SmartDashboard.putNumber("Robot/Climber/Arm/Position", self._armLeftEncoder.getPosition())
+    SmartDashboard.putNumber("Robot/Climber/Brake/Position", self._brakeServo.get())

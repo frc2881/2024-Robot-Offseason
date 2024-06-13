@@ -38,12 +38,12 @@ class LauncherRollersSubsystem(Subsystem):
       lambda: [
         self.reset()
       ]
-    )
+    ).withName("LauncherRollersSubsystem:Run")
 
   def reset(self) -> None:
     self._topRollerMotor.set(0)
     self._bottomRollerMotor.set(0)
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putNumber("Robot/Launcher/Roller/Top/Speed", self._topRollerMotor.get())
-    SmartDashboard.putNumber("Robot/Launcher/Roller/Bottom/Speed", self._bottomRollerMotor.get())
+    SmartDashboard.putNumber("Robot/Launcher/Rollers/Top/Speed", self._topRollerMotor.get())
+    SmartDashboard.putNumber("Robot/Launcher/Rollers/Bottom/Speed", self._bottomRollerMotor.get())

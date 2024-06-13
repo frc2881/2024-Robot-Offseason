@@ -9,7 +9,7 @@ from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModule
 from rev import CANSparkBase
 from lib import utils, logger
 from lib.classes import SwerveModuleLocation, DriveSpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
-from lib.subsystems.drive.swerve_module import SwerveModule
+from lib.components.swerve_module import SwerveModule
 import constants
 
 class DriveSubsystem(Subsystem):
@@ -124,7 +124,7 @@ class DriveSubsystem(Subsystem):
       lambda: self._driveWithController(getLeftY(), getLeftX(), getRightX())
     ).onlyIf(
       lambda: self._lockState != DriveLockState.Locked
-    ).withName("DriveWithController")
+    ).withName("DriveSubsystem:DriveWithController")
 
   def _driveWithController(self, speedX: float, speedY: float, speedRotation: float) -> None:
     if self._driftCorrection == DriveDriftCorrection.Enabled:
@@ -198,11 +198,11 @@ class DriveSubsystem(Subsystem):
     self._swerveModuleRearRight.setIdleMode(idleMode)
     SmartDashboard.putString("Robot/Drive/IdleMode/selected", idleMode.name.lstrip("k"))
 
-  def setLockedCommand(self) -> Command:
+  def lockCommand(self) -> Command:
     return self.startEnd(
       lambda: self._setLockState(DriveLockState.Locked),
       lambda: self._setLockState(DriveLockState.Unlocked)
-    ).withName("LockDrive")
+    ).withName("DriveSubsystem:Lock")
   
   def _setLockState(self, lockState: DriveLockState) -> None:
     self._lockState = lockState
@@ -225,7 +225,7 @@ class DriveSubsystem(Subsystem):
       lambda: self._lockState != DriveLockState.Locked
     ).until(
       lambda: self._isAlignedToTarget
-    )
+    ).withName("DriveSubsystem:AlignToTarget")
 
   def _alignToTarget(self, robotYaw: float, targetYaw: float) -> None:
     speedRotation: float = self._targetAlignmentThetaController.calculate(robotYaw)
@@ -250,10 +250,6 @@ class DriveSubsystem(Subsystem):
     self._drive(0, 0, 0)
   
   def _updateTelemetry(self) -> None:
-    self._swerveModuleFrontLeft.updateTelemetry()
-    self._swerveModuleFrontRight.updateTelemetry()
-    self._swerveModuleRearLeft.updateTelemetry()
-    self._swerveModuleRearRight.updateTelemetry()
     SmartDashboard.putString("Robot/Drive/LockState", self._lockState.name)
     SmartDashboard.putBoolean("Robot/Drive/IsAlignedToTarget", self._isAlignedToTarget)
   

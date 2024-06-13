@@ -1,5 +1,6 @@
-from typing import Any, TypeVar
+from typing import Any, Callable, TypeVar
 import math
+from commands2 import TimedCommandRobot
 import numpy
 import json
 import time
@@ -8,16 +9,14 @@ import wpimath
 from wpimath.geometry import Pose2d, Pose3d, Rotation2d
 from wpilib import DriverStation
 from rev import CANSparkBase, REVLibError
+import robot
 from lib import logger
 from lib.classes import Alliance, RobotMode, RobotState
 
 T = TypeVar("T")
 
-def getAlliance() -> Alliance:
-  return Alliance(DriverStation.getAlliance() or Alliance.Blue)
-
-def getValueForAlliance(blueValue: T, redValue: T) -> T:
-  return blueValue if getAlliance() == Alliance.Blue else redValue
+def addRobotPeriodic(callback: Callable[[], None], period: float = 0.02, offset: float = 0) -> None:
+  robot.Robot.getInstance().addPeriodic(callback, period, offset)
 
 def getRobotState() -> RobotState:
   if wpilib.RobotState.isEnabled():
@@ -45,6 +44,12 @@ def isAutonomousMode() -> bool:
 
 def isCompetitionMode() -> bool:
   return DriverStation.getMatchTime() != -1
+
+def getAlliance() -> Alliance:
+  return Alliance(DriverStation.getAlliance() or Alliance.Blue)
+
+def getValueForAlliance(blueValue: T, redValue: T) -> T:
+  return blueValue if getAlliance() == Alliance.Blue else redValue
 
 def getMatchTime() -> float:
   return DriverStation.getMatchTime()

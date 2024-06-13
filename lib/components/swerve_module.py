@@ -19,7 +19,8 @@ class SwerveModule:
     self._constants = constants
     self._location = location
     self._turningOffset = turningOffset
-
+    
+    self._baseKey = f'Robot/Drive/SwerveModules/{self._location.name}'
     self._setSpeed: float = 0
 
     self._drivingMotor = CANSparkFlex(drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
@@ -61,6 +62,8 @@ class SwerveModule:
     utils.validateParam(self._turningMotor.setSmartCurrentLimit(self._constants.kTurningMotorCurrentLimit))
     utils.validateParam(self._turningMotor.burnFlash())
 
+    utils.addRobotPeriodic(self._updateTelemetry)
+
   def setTargetState(self, targetState: SwerveModuleState) -> None:
     targetState.angle = targetState.angle.__add__(Rotation2d(self._turningOffset))
     targetState = SwerveModuleState.optimize(targetState, Rotation2d(self._turningEncoder.getPosition()))
@@ -79,9 +82,9 @@ class SwerveModule:
     self._drivingMotor.setIdleMode(idleMode)
     self._turningMotor.setIdleMode(idleMode)
 
-  def updateTelemetry(self) -> None:
-    SmartDashboard.putNumber(f'Robot/Drive/SwerveModule/{ self._location.name }/Driving/Speed/Target', self._setSpeed)
-    SmartDashboard.putNumber(f'Robot/Drive/SwerveModule/{ self._location.name }/Driving/Speed/Actual', self._drivingEncoder.getVelocity())
-    SmartDashboard.putNumber(f'Robot/Drive/SwerveModule/{ self._location.name }/Driving/AppliedOutput', self._drivingMotor.getAppliedOutput())
-    SmartDashboard.putNumber(f'Robot/Drive/SwerveModule/{ self._location.name }/Driving/RelativePosition', self._drivingEncoder.getPosition())
-    SmartDashboard.putNumber(f'Robot/Drive/SwerveModule/{ self._location.name }/Turning/AbsolutePosition', self._turningEncoder.getPosition())
+  def _updateTelemetry(self) -> None:
+    SmartDashboard.putNumber(f'{self._baseKey}/Driving/Speed/Target', self._setSpeed)
+    SmartDashboard.putNumber(f'{self._baseKey}/Driving/Speed/Actual', self._drivingEncoder.getVelocity())
+    SmartDashboard.putNumber(f'{self._baseKey}/Driving/AppliedOutput', self._drivingMotor.getAppliedOutput())
+    SmartDashboard.putNumber(f'{self._baseKey}/Driving/RelativePosition', self._drivingEncoder.getPosition())
+    SmartDashboard.putNumber(f'{self._baseKey}/Turning/AbsolutePosition', self._turningEncoder.getPosition())

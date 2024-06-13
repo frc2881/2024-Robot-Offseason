@@ -3,6 +3,7 @@ from wpimath.geometry import Transform3d
 from robotpy_apriltag import AprilTagFieldLayout
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy, EstimatedRobotPose
+from lib import utils
 
 class PoseSensor:
   def __init__(
@@ -14,22 +15,26 @@ class PoseSensor:
       aprilTagFieldLayout: AprilTagFieldLayout
     ) -> None:
     self._cameraName = cameraName
-    
+    self._baseKey = f'Robot/Sensor/Pose/{self._cameraName}'
     self._photonCamera = PhotonCamera(cameraName)
     self._photonCamera.setDriverMode(False)
     self._photonPoseEstimator = PhotonPoseEstimator(aprilTagFieldLayout, poseStrategy, self._photonCamera, cameraTransform)
     self._photonPoseEstimator.multiTagFallbackStrategy = fallbackPoseStrategy
+    self._hasTarget = False
+
+    utils.addRobotPeriodic(self._updateTelemetry)
 
   def getEstimatedRobotPose(self) -> EstimatedRobotPose | None:
     if self._photonCamera.isConnected():
-        return self._photonPoseEstimator.update()
+      photonPipelineResult = self._photonCamera.getLatestResult()
+      self._hasTarget = photonPipelineResult.hasTargets()
+      return self._photonPoseEstimator.update(photonPipelineResult)
+    self._hasTarget = False
     return None
   
   def hasTarget(self) -> bool:
-    if self._photonCamera.isConnected():
-      return self._photonCamera.getLatestResult().hasTargets()
-    return False
+    return self._hasTarget
   
-  def updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean(f'Robot/Sensor/Pose/{self._cameraName}/IsConnected', self._photonCamera.isConnected())
-    SmartDashboard.putBoolean(f'Robot/Sensor/Pose/{self._cameraName}/HasTarget', self.hasTarget())
+  def _updateTelemetry(self) -> None:
+    SmartDashboard.putBoolean(f'{self._baseKey}/IsConnected', self._photonCamera.isConnected())
+    SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())

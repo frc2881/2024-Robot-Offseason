@@ -6,9 +6,9 @@ from wpimath import units
 from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 from rev import CANSparkBase
 from photonlibpy.photonPoseEstimator import PoseStrategy
-from pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
-from pathplannerlib.pathfinding import PathConstraints
-from pathplannerlib.path import PathPlannerPath
+from extras.pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
+from extras.pathplannerlib.pathfinding import PathConstraints
+from extras.pathplannerlib.path import PathPlannerPath
 from lib.classes import PIDConstants
 from classes import AutoPath, LauncherRollersSpeeds, LauncherArmPositionTarget
 
@@ -97,60 +97,62 @@ class Subsystems:
       kTurningMotorPIDConstants = PIDConstants(1, 0, 0, 0)
 
   class Intake:
-    kTopBeltsMotorCANId: int = 18
-    kBottomBeltsMotorCANId: int = 19
-    kRollersMotorCANId: int = 20
-
-    kTopBeltsMotorCurrentLimit: int = 60
-    kTopBeltsMotorMaxForwardOutput: float = 0.6
-    kTopBeltsMotorMaxReverseOutput: float = -0.6
-    kTopBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
+    kBottomBeltsMotorCANId: int = 18
+    kTopRearBeltsMotorCANId: int = 19
+    kTopFrontBeltsMotorCANId: int = 20
 
     kBottomBeltsMotorCurrentLimit: int = 60
     kBottomBeltsMotorMaxForwardOutput: float = 0.6
     kBottomBeltsMotorMaxReverseOutput: float = -0.6
     kBottomBeltsMotorIdleMode = CANSparkBase.IdleMode.kCoast
 
-    kRollersMotorCurrentLimit: int = 60
-    kRollersMotorMaxForwardOutput: float = 0.6
-    kRollersMotorMaxReverseOutput: float = -0.6
-    kRollersMotorIdleMode = CANSparkBase.IdleMode.kBrake
+    kTopFrontBeltsMotorCurrentLimit: int = 60
+    kTopFrontBeltsMotorMaxForwardOutput: float = 0.6
+    kTopFrontBeltsMotorMaxReverseOutput: float = -0.6
+    kTopFrontBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
-    kIntakeBeltsSpeed: float = 0.8
-    kIntakeBeltsAutoSpeed: float = 0.74
-    kIntakeBeltsAdjustPositionSpeed: float = 0.3
+    kTopRearBeltsMotorCurrentLimit: int = 60
+    kTopRearBeltsMotorMaxForwardOutput: float = 0.6
+    kTopRearBeltsMotorMaxReverseOutput: float = -0.6
+    kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
-    kIntakeCompletionDelay: units.seconds = 0.033
-    kIntakeCompletionAutoDelay: units.seconds = 0.019
-    kIntakeAdjustmentDelay: units.seconds = 0.05
-    kIntakeReloadDelay: units.seconds = 0.25
+    kBeltsDefaultSpeed: float = 0.8
+    kBeltsAlignmentSpeed: float = 0.2
+
+    kIntakeTriggerDistanceIn: float = 40.0
+    kIntakeTriggerDistanceOut: float = 360.0
+    kLauncherTriggerDistanceIn: float = 130.0
+    kLauncherTargetDistanceMin: float = 60.0
+    kLauncherTargetDistanceMax: float = 75.0
+
+    kReloadDelay: units.seconds = 0.2
 
   class Launcher:
     kArmMotorCANId: int = 11
-    kTopRollerMotorCANId: int = 12
-    kBottomRollerMotorCANId: int = 13
+    kBottomRollerMotorCANId: int = 12
+    kTopRollerMotorCANId: int = 13
 
     kArmMotorCurrentLimit: int = 60
     kArmMotorMaxReverseOutput: float = -1.0
     kArmMotorMaxForwardOutput: float = 1.0
     kArmMotorIdleMode = CANSparkBase.IdleMode.kBrake
     kArmMotorPIDConstants = PIDConstants(0.0003, 0, 0.00015, 1 / 16.8)
-    kArmMotorForwardSoftLimit: float = 14.5
-    kArmMotorReverseSoftLimit: float = 1
+    kArmMotorForwardSoftLimit: float = 12.0
+    kArmMotorReverseSoftLimit: float = 1.0
     kArmMotorPositionConversionFactor: float = 1.0 / 3.0
     kArmMotorVelocityConversionFactor: float = kArmMotorPositionConversionFactor / 60.0
     kArmMotorSmartMotionMaxVelocity: float = (33.0 / kArmMotorPositionConversionFactor) * 60
     kArmMotorSmartMotionMaxAccel: float = 100.0 / kArmMotorVelocityConversionFactor
 
-    kTopRollerMotorCurrentLimit = 100
-    kTopRollerMotorMaxForwardOutput: float = 1.0
-    kTopRollerMotorMaxReverseOutput: float = -1.0
-    kTopRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
-
     kBottomRollerMotorCurrentLimit = 100
     kBottomRollerMotorMaxForwardOutput: float = 1.0
     kBottomRollerMotorMaxReverseOutput: float = -1.0
     kBottomRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
+
+    kTopRollerMotorCurrentLimit = 100
+    kTopRollerMotorMaxForwardOutput: float = 1.0
+    kTopRollerMotorMaxReverseOutput: float = -1.0
+    kTopRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kRollersLaunchStartDelay: units.seconds = 0.5
 
@@ -162,20 +164,21 @@ class Subsystems:
     kArmInputLimiter: float = 0.5
     kArmTargetAlignmentPositionTolerance: float = 0.1
     
-    kArmPositionIntake: float = 7.0
-    kArmPositionAmp: float = 13
-    kArmPositionShuttle: float = 12.0
-    kArmPositionSubwoofer: float = 12.9
-    kArmPositionPodium: float = 10.35
-    kArmPositionFlat: float = 1.0
+    kArmPositionIntakeMax: float = 8.5 # TODO: recalibrate with on-field testing
+    kArmPositionSubwoofer: float = 10.4 # TODO: recalibrate with on-field testing
+    kArmPositionPodium: float = 7.85 # TODO: recalibrate with on-field testing
+    kArmPositionAmp: float = 10.5 # TODO: recalibrate with on-field testing
+    kArmPositionShuttle: float = 9.5 # TODO: recalibrate with on-field testing
+    kArmPositionClimber: float = 1.0
 
+    # TODO: recalibrate with on-field testing
     kArmPositionTargets: list[LauncherArmPositionTarget] = [
-      LauncherArmPositionTarget(1.00, 13.0),
-      LauncherArmPositionTarget(1.35, 12.6),
-      LauncherArmPositionTarget(2.3, 8.15),
-      LauncherArmPositionTarget(3.65, 5.8),
-      LauncherArmPositionTarget(5.0, 4.17),
-      LauncherArmPositionTarget(6.2, 3.94)
+      LauncherArmPositionTarget(1.00, 10.5),
+      LauncherArmPositionTarget(1.35, 10.1),
+      LauncherArmPositionTarget(2.3, 5.65),
+      LauncherArmPositionTarget(3.65, 3.3),
+      LauncherArmPositionTarget(5.0, 1.67),
+      LauncherArmPositionTarget(6.2, 1.44)
     ]
 
   class Climber:
@@ -190,7 +193,7 @@ class Subsystems:
     kArmMotorForwardSoftLimit: float = 33.0
     kArmMotorReverseSoftLimit: float = 0.0
 
-    kArmPositionDefault = 8.2
+    kArmPositionDefault: float = 8.2
 
     kBrakeServoChannel: int = 9
 
@@ -205,14 +208,15 @@ class Sensors:
     kCommandCalibrationDelay: units.seconds = 4.0
 
   class Pose:
+    # TODO: remeasure and validate new Rear and Left camera positions on the robot (Right camera has not moved)
     kPoseSensors: dict[str, Transform3d] = {
       "Rear": Transform3d(
         Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-10.75), units.inchesToMeters(18.0)),
         Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(180.0))
       ),
       "Left": Transform3d(
-        Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-11.5), units.inchesToMeters(15.5)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-28.4), units.degreesToRadians(-90.0))
+        Translation3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0)),
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(0), units.degreesToRadians(0))
       ),
       "Right": Transform3d(
         Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-11.5), units.inchesToMeters(15.5)),
@@ -229,26 +233,15 @@ class Sensors:
     class Intake:
       kSensorName = "Intake"
       kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 250
+      kMaxTargetDistance: float = 360
     class Launcher:
       kSensorName = "Launcher"
       kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 250
+      kMaxTargetDistance: float = 360
     class Climber:
       kSensorName = "Climber"
       kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 250
-
-  # class BeamBreak:
-  #   class LauncherBottom:
-  #     kSensorName = "LauncherBottom"
-  #     kChannel: int = 7
-  #   class LauncherTop:
-  #     kSensorName = "LauncheTop"
-  #     kChannel: int = 5
-  #   class Climber:
-  #     kSensorName = "Climber"
-  #     kChannel: int = 3
+      kMaxTargetDistance: float = 360
 
   class Object:
     kCameraName = "Front"

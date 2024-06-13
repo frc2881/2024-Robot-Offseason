@@ -52,14 +52,9 @@ class ControllerRumblePattern(Enum):
   Short = auto()
   Long = auto()
 
-@dataclass
+@dataclass(frozen=True)
 class PIDConstants:
   P: float
   I: float
   D: float
   FF: float
-
-@dataclass
-class ObjectTargetInfo:
-  yaw: float
-  area: float

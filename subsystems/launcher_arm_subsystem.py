@@ -50,7 +50,7 @@ class LauncherArmSubsystem(Subsystem):
       lambda: self.clearTargetAlignment()
     ).finallyDo(
       lambda end: self.reset()
-    ).withName("RunLauncherArm")
+    ).withName("LauncherArmSubsystem:RunLauncherArm")
 
   def alignToPositionCommand(self, position: float) -> Command:
     return self.run(
@@ -64,7 +64,7 @@ class LauncherArmSubsystem(Subsystem):
       lambda: self.clearTargetAlignment()
     ).finallyDo(
       lambda end: self.reset()
-    )
+    ).withName("LauncherArmSubsystem:AlignToPosition")
   
   def alignToTargetCommand(self, getTargetDistance: Callable[[], float]) -> Command:
     return self.run(
@@ -79,7 +79,10 @@ class LauncherArmSubsystem(Subsystem):
       lambda: self.clearTargetAlignment()
     ).finallyDo(
       lambda end: self.reset()
-    )
+    ).withName("LauncherArmSubsystem:AlignToTarget")
+
+  def getPosition(self) -> float:
+    return self._armEncoder.getPosition()
 
   def _getTargetPosition(self, targetDistance: float) -> float:
     targetPosition = utils.getInterpolatedValue(self._targetDistances, self._targetPositions, targetDistance)
@@ -109,7 +112,7 @@ class LauncherArmSubsystem(Subsystem):
         utils.enableSoftLimits(self._armMotor, True),
         setattr(self, "_hasInitialZeroReset", True)
       ]
-    ).withName("ResetLauncherArmToZero")
+    ).withName("LauncherArmSubsystem:ResetToZero")
 
   def hasInitialZeroReset(self) -> bool:
     return self._hasInitialZeroReset
@@ -118,5 +121,5 @@ class LauncherArmSubsystem(Subsystem):
     self._armMotor.set(0)
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putNumber("Robot/Launcher/Arm/Position", self._armEncoder.getPosition())
+    SmartDashboard.putNumber("Robot/Launcher/Arm/Position", self.getPosition())
     SmartDashboard.putBoolean("Robot/Launcher/Arm/IsAlignedToTarget", self._isAlignedToTarget)

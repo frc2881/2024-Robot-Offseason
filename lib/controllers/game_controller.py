@@ -1,7 +1,7 @@
 import math
 from commands2 import Command, cmd
 from commands2.button import CommandXboxController, Trigger
-from wpilib import XboxController, RobotBase
+from wpilib import XboxController
 from lib import utils
 from lib.classes import ControllerRumblePattern
 
@@ -12,7 +12,6 @@ class GameController(CommandXboxController):
       inputDeadband: float
     ) -> None:
     super().__init__(port)
-    self._hid = super().getHID()
     self._inputDeadband = inputDeadband
 
   def getLeftY(self) -> float:
@@ -40,27 +39,22 @@ class GameController(CommandXboxController):
     return Trigger(lambda: math.fabs(super().getRightX()) > self._inputDeadband)
   
   def rumbleCommand(self, pattern: ControllerRumblePattern) -> Command:
-    if RobotBase.isReal():
-      match pattern:
-        case ControllerRumblePattern.Short:
-          return cmd.startEnd(
-            cmd.sequence(
-              cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1)),
-              cmd.waitSeconds(0.5),
-              cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0))
-            ),
-            cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0))
-          )
-        case ControllerRumblePattern.Long:
-          return cmd.startEnd(
-            cmd.sequence(
-              cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1)),
-              cmd.waitSeconds(1.5),
-              cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0))
-            ),
-            cmd.runOnce(lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0))
-          )
-        case _:
-          return cmd.none()
-    else:
-      return cmd.none()
+    match pattern:
+      case ControllerRumblePattern.Short:
+        return cmd.run(
+          lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1)
+        ).withTimeout(
+          0.5
+        ).finallyDo(
+          lambda end: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0)
+        )
+      case ControllerRumblePattern.Long:
+        return cmd.run(
+          lambda: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 1)
+        ).withTimeout(
+          1.5
+        ).finallyDo(
+          lambda end: self._hid.setRumble(XboxController.RumbleType.kBothRumble, 0)
+        )
+      case _:
+        return cmd.none()

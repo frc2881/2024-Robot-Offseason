@@ -18,6 +18,10 @@ class GyroSensor(ADIS16470_IMU):
     self._commandCalibrationTime = commandCalibrationTime
     self._commandCalibrationWaitTime = commandCalibrationWaitTime
 
+    self._baseKey = f'Robot/Sensor/Gyro'
+
+    utils.addRobotPeriodic(self._updateTelemetry)
+
   def calibrate(self) -> None:
     if RobotBase.isReal():
       super().calibrate()
@@ -52,25 +56,25 @@ class GyroSensor(ADIS16470_IMU):
   def resetCommand(self) -> Command:
     return cmd.runOnce(
       lambda: self.set(0)
-    ).ignoringDisable(True).withName("ResetGyro")
+    ).ignoringDisable(True).withName("GyroSensor:Reset")
   
   def calibrateCommand(self) -> Command:
     return cmd.sequence(
       cmd.runOnce(
         lambda: [
-          SmartDashboard.putBoolean("Robot/Sensor/Gyro/IsCalibrating", True),
+          SmartDashboard.putBoolean(f'{self._baseKey}/IsCalibrating', True),
           self.configCalTime(self._commandCalibrationTime),
           self.calibrate()
         ]
       ),
       cmd.waitSeconds(self._commandCalibrationWaitTime),
       cmd.runOnce(
-        lambda: SmartDashboard.putBoolean("Robot/Sensor/Gyro/IsCalibrating", False)
+        lambda: SmartDashboard.putBoolean(f'{self._baseKey}/IsCalibrating', False)
       )
-    ).ignoringDisable(True).withName("CalibrateGyro")
+    ).ignoringDisable(True).withName("GyroSensor:Calibrate")
   
-  def updateTelemetry(self) -> None:
-    SmartDashboard.putNumber("Robot/Sensor/Gyro/Yaw", self.getYaw())
-    SmartDashboard.putNumber("Robot/Sensor/Gyro/Pitch", self.getPitch())
-    SmartDashboard.putNumber("Robot/Sensor/Gyro/Roll", self.getRoll())
-    SmartDashboard.putNumber("Robot/Sensor/Gyro/TurnRate", self.getTurnRate())
+  def _updateTelemetry(self) -> None:
+    SmartDashboard.putNumber(f'{self._baseKey}/Yaw', self.getYaw())
+    SmartDashboard.putNumber(f'{self._baseKey}/Pitch', self.getPitch())
+    SmartDashboard.putNumber(f'{self._baseKey}/Roll', self.getRoll())
+    SmartDashboard.putNumber(f'{self._baseKey}/TurnRate', self.getTurnRate())
