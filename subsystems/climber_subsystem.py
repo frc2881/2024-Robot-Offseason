@@ -7,7 +7,10 @@ import constants
 class ClimberSubsystem(Subsystem):
   def __init__(self) -> None:
     super().__init__()
+    
     self._constants = constants.Subsystems.Climber
+
+    self._hasInitialZeroReset: bool = False
 
     self._armLeftMotor = CANSparkMax(self._constants.kArmLeftMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
     self._armLeftEncoder = self._armLeftMotor.getEncoder()
@@ -40,8 +43,6 @@ class ClimberSubsystem(Subsystem):
     utils.validateParam(self._armRightMotor.burnFlash())
 
     self._brakeServo = Servo(self._constants.kBrakeServoChannel)
-
-    self._hasInitialZeroReset: bool = False
 
   def periodic(self) -> None:
     self._updateTelemetry()

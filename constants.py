@@ -116,14 +116,17 @@ class Subsystems:
     kTopRearBeltsMotorMaxReverseOutput: float = -0.8
     kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
-    kBeltsDefaultSpeed: float = 0.8
+    kBeltsIntakeSpeed: float = 0.8
     kBeltsAlignmentSpeed: float = 0.2
+    kBeltsEjectSpeed: float = 0.8
+    kBeltsLaunchSpeed: float = 0.8
 
     kIntakeTriggerDistanceIn: float = 120.0
     kIntakeTriggerDistanceOut: float = 320.0
     kLauncherTriggerDistanceIn: float = 300.0
-    kLauncherTargetDistanceMin: float = 60.0
-    kLauncherTargetDistanceMax: float = 75.0
+    kLauncherTriggerDistanceAlign: float = 75.0
+    kLauncherTargetDistanceMin: float = 50.0
+    kLauncherTargetDistanceMax: float = 90.0
 
     kReloadDelay: units.seconds = 0.2
 
@@ -232,15 +235,15 @@ class Sensors:
     class Intake:
       kSensorName = "Intake"
       kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 360
+      kMaxTargetDistance: float = 320
     class Launcher:
       kSensorName = "Launcher"
       kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 360
+      kMaxTargetDistance: float = 320
     class Climber:
       kSensorName = "Climber"
       kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 360
+      kMaxTargetDistance: float = 240
 
   class Object:
     kCameraName = "Front"

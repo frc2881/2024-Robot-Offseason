@@ -42,7 +42,7 @@ class AutoCommands:
   
   def _scorePosition(self, position: float) -> Command:
     return cmd.sequence(
-      self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self.gameCommands.alignLauncherToPositionCommand(position),
       self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsSpeaker)
     ).withName("AutoCommands:ScoreAtSubwoofer")
   

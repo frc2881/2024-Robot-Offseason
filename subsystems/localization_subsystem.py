@@ -17,7 +17,6 @@ class LocalizationSubsystem(Subsystem):
       getSwerveModulePositions: Callable[[], tuple[SwerveModulePosition, ...]]
     ) -> None:
     super().__init__()
-
     self._poseSensors = poseSensors
     self._getGyroRotation = getGyroRotation
     self._getSwerveModulePositions = getSwerveModulePositions

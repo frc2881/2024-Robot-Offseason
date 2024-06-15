@@ -8,6 +8,7 @@ import constants
 class LauncherRollersSubsystem(Subsystem):
   def __init__(self) -> None:
     super().__init__()
+    
     self._constants = constants.Subsystems.Launcher
 
     self._topRollerMotor = CANSparkFlex(self._constants.kTopRollerMotorCANId, CANSparkLowLevel.MotorType.kBrushless)

@@ -9,7 +9,15 @@ import constants
 class LauncherArmSubsystem(Subsystem):
   def __init__(self) -> None:
     super().__init__()
+    
     self._constants = constants.Subsystems.Launcher
+
+    self._hasInitialZeroReset: bool = False
+    self._isAlignedToTarget: bool = False
+    self._targetDistances = list(map(lambda p: p.distance, self._constants.kArmPositionTargets))
+    self._targetPositions = list(map(lambda p: p.position, self._constants.kArmPositionTargets))
+    
+    SmartDashboard.putString("Robot/Launcher/Arm/Positions", utils.toJson(self._constants.kArmPositionTargets))
 
     self._armMotor = CANSparkMax(self._constants.kArmMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
     self._armEncoder = self._armMotor.getEncoder()
@@ -31,14 +39,6 @@ class LauncherArmSubsystem(Subsystem):
     utils.validateParam(self._armPIDController.setSmartMotionMaxVelocity(self._constants.kArmMotorSmartMotionMaxVelocity, 0))
     utils.validateParam(self._armPIDController.setSmartMotionMaxAccel(self._constants.kArmMotorSmartMotionMaxAccel, 0))
     utils.validateParam(self._armMotor.burnFlash())
-
-    self._hasInitialZeroReset: bool = False
-
-    self._isAlignedToTarget: bool = False
-    self._targetDistances = list(map(lambda p: p.distance, self._constants.kArmPositionTargets))
-    self._targetPositions = list(map(lambda p: p.position, self._constants.kArmPositionTargets))
-
-    SmartDashboard.putString("Robot/Launcher/Arm/Positions", utils.toJson(self._constants.kArmPositionTargets))
 
   def periodic(self) -> None:
     self._updateTelemetry()
@@ -122,4 +122,4 @@ class LauncherArmSubsystem(Subsystem):
 
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber("Robot/Launcher/Arm/Position", self.getPosition())
-    SmartDashboard.putBoolean("Robot/Launcher/Arm/IsAlignedToTarget", self._isAlignedToTarget)
+    SmartDashboard.putBoolean("Robot/Launcher/Arm/IsAlignedToTarget", self.isAlignedToTarget())

@@ -91,7 +91,10 @@ class RobotContainer:
       lambda: self.gyroSensor.getRotation(),
       lambda: self.driveSubsystem.getSwerveModulePositions()
     )
-    self.intakeSubsystem = IntakeSubsystem()
+    self.intakeSubsystem = IntakeSubsystem(
+      lambda: self.intakeDistanceSensor.getDistance(),
+      lambda: self.launcherDistanceSensor.getDistance()
+    )
     self.launcherArmSubsystem = LauncherArmSubsystem()
     self.launcherRollersSubsystem = LauncherRollersSubsystem()
     self.climberSubsystem = ClimberSubsystem()
@@ -267,11 +270,7 @@ class RobotContainer:
     lightsMode = LightsMode.Default
     if self.launcherDistanceSensor.hasTarget() or self.intakeDistanceSensor.hasTarget():
       lightsMode = LightsMode.IntakeNotReady
-      if utils.isValueInRange(
-        self.launcherDistanceSensor.getDistance(), 
-        constants.Subsystems.Intake.kLauncherTargetDistanceMin,
-        constants.Subsystems.Intake.kLauncherTargetDistanceMax
-      ):
+      if self.intakeSubsystem.isAlignedForLaunch():
         lightsMode = LightsMode.IntakeReady
         if utils.getRobotState() == RobotState.Disabled:
           if not self.localizationSubsystem.hasVisionTargets():

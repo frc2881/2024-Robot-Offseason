@@ -16,23 +16,13 @@ class GameCommands:
 
   def runIntakeCommand(self, intakeDirection: IntakeDirection) -> Command:
     return cmd.sequence(
-      cmd.runOnce(lambda: [ 
-        self.robot.intakeDistanceSensor.resetTrigger(),
-        self.robot.launcherDistanceSensor.resetTrigger()
-      ]),
-      self.robot.intakeSubsystem.runCommand(
-        intakeDirection,
-        lambda: self.robot.intakeDistanceSensor.getDistance(),
-        lambda: self.robot.launcherDistanceSensor.getDistance()
-      ).deadlineWith(
+      self.robot.intakeSubsystem.runCommand(intakeDirection).deadlineWith(
         self.robot.launcherArmSubsystem.alignToPositionCommand(
           constants.Subsystems.Launcher.kArmPositionIntakeMax
         ).onlyIf(
           lambda: self.robot.launcherArmSubsystem.getPosition() > constants.Subsystems.Launcher.kArmPositionIntakeMax
         )
       ),
-      cmd.waitSeconds(0.1),
-      self.robot.intakeSubsystem.alignCommand(lambda: self.robot.launcherDistanceSensor.getDistance()),
       self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
     ).withName("GameCommands:RunIntake")
   

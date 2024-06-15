@@ -18,9 +18,9 @@ class DriveSubsystem(Subsystem):
       getGyroHeading: Callable[[], float]
     ) -> None:
     super().__init__()
-    self._constants = constants.Subsystems.Drive
-
     self._getGyroHeading: Callable[[], float] = getGyroHeading
+    
+    self._constants = constants.Subsystems.Drive
 
     self._swerveModuleFrontLeft = SwerveModule(
       SwerveModuleLocation.FrontLeft,
