@@ -208,7 +208,6 @@ class Sensors:
     kCommandCalibrationDelay: units.seconds = 4.0
 
   class Pose:
-    # TODO: remeasure and validate new Rear and Left camera positions on the robot (Right camera has not moved)
     kPoseSensors: dict[str, Transform3d] = {
       "Rear": Transform3d(
         Translation3d(units.inchesToMeters(-4.75), units.inchesToMeters(-11.25), units.inchesToMeters(20.0)),
