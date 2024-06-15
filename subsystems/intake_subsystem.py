@@ -81,12 +81,12 @@ class IntakeSubsystem(Subsystem):
   def alignCommand(self, getLauncherTargetDistance: Callable[[], float]) -> Command:
     return self.startEnd(
       lambda: [
-        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsAlignmentSpeed),
-        self._runTopRearBelts(MotorDirection.Reverse, self._constants.kBeltsAlignmentSpeed),
+        self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsAlignmentSpeed),
+        self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsAlignmentSpeed),
       ], 
       lambda: self.reset()
     ).until(
-      lambda: getLauncherTargetDistance() >= self._constants.kLauncherTargetDistanceMin
+      lambda: getLauncherTargetDistance() <= self._constants.kLauncherTargetDistanceMax
     ).withName("IntakeSubsystem:Align")
 
   def ejectCommand(self) -> Command:

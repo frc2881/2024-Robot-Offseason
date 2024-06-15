@@ -95,33 +95,33 @@ class Subsystems:
       kTurningMotorMaxForwardOutput: float = 1.0
       kTurningMotorIdleMode = CANSparkBase.IdleMode.kBrake
       kTurningMotorPIDConstants = PIDConstants(1, 0, 0, 0)
-
+ 
   class Intake:
     kBottomBeltsMotorCANId: int = 18
     kTopRearBeltsMotorCANId: int = 19
     kTopFrontBeltsMotorCANId: int = 20
 
     kBottomBeltsMotorCurrentLimit: int = 60
-    kBottomBeltsMotorMaxForwardOutput: float = 0.6
-    kBottomBeltsMotorMaxReverseOutput: float = -0.6
+    kBottomBeltsMotorMaxForwardOutput: float = 0.8
+    kBottomBeltsMotorMaxReverseOutput: float = -0.8
     kBottomBeltsMotorIdleMode = CANSparkBase.IdleMode.kCoast
 
     kTopFrontBeltsMotorCurrentLimit: int = 60
-    kTopFrontBeltsMotorMaxForwardOutput: float = 0.6
-    kTopFrontBeltsMotorMaxReverseOutput: float = -0.6
+    kTopFrontBeltsMotorMaxForwardOutput: float = 0.8
+    kTopFrontBeltsMotorMaxReverseOutput: float = -0.8
     kTopFrontBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kTopRearBeltsMotorCurrentLimit: int = 60
-    kTopRearBeltsMotorMaxForwardOutput: float = 0.6
-    kTopRearBeltsMotorMaxReverseOutput: float = -0.6
+    kTopRearBeltsMotorMaxForwardOutput: float = 0.8
+    kTopRearBeltsMotorMaxReverseOutput: float = -0.8
     kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kBeltsDefaultSpeed: float = 0.8
     kBeltsAlignmentSpeed: float = 0.2
 
-    kIntakeTriggerDistanceIn: float = 40.0
-    kIntakeTriggerDistanceOut: float = 360.0
-    kLauncherTriggerDistanceIn: float = 130.0
+    kIntakeTriggerDistanceIn: float = 120.0
+    kIntakeTriggerDistanceOut: float = 320.0
+    kLauncherTriggerDistanceIn: float = 300.0
     kLauncherTargetDistanceMin: float = 60.0
     kLauncherTargetDistanceMax: float = 75.0
 
