@@ -47,7 +47,7 @@ class AutoCommands:
     ).withName("AutoCommands:ScoreAtSubwoofer")
   
   def _start(self) -> Command:
-    return self.gameCommands.runLauncherWarmupCommand().withName("AutoCommands:Start")
+    return cmd.none() # self.gameCommands.runLauncherWarmupCommand().withName("AutoCommands:Start")
   
   # ######################################################################
   # ################################ AUTOS ###############################
