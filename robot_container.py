@@ -2,7 +2,7 @@ from wpilib import SmartDashboard, SendableChooser, PowerDistribution, DriverSta
 from commands2 import Command, cmd
 from commands2.button import Trigger
 from extras.pathplannerlib.auto import AutoBuilder, HolonomicPathFollowerConfig, ReplanningConfig
-from lib import utils
+from lib import utils, logger
 from lib.classes import Alliance, RobotState
 from lib.controllers.game_controller import GameController
 from lib.controllers.lights_controller import LightsController
@@ -150,13 +150,13 @@ class RobotContainer:
     self.operatorController.rightTrigger().whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsSpeaker))
     self.operatorController.leftTrigger().whileTrue(self.gameCommands.alignLauncherToTargetCommand())
     self.operatorController.rightBumper().whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsAmp))
-    self.operatorController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionAmp))
+    # self.operatorController.leftBumper().whileTrue(cmd.none())
     # self.operatorController.rightStick().whileTrue(cmd.none())
     # self.operatorController.leftStick().whileTrue(cmd.none())
     self.operatorController.povUp().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionPodium))
     self.operatorController.povDown().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionSubwoofer))
     self.operatorController.povLeft().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionShuttle))
-    # self.operatorController.povRight().whileTrue(cmd.none())
+    self.operatorController.povRight().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionAmp))
     # self.operatorController.a().whileTrue(cmd.none())
     # self.operatorController.b().whileTrue(cmd.none())
     # self.operatorController.y().whileTrue(cmd.none())

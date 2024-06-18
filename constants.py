@@ -116,17 +116,15 @@ class Subsystems:
     kTopRearBeltsMotorMaxReverseOutput: float = -0.8
     kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
-    kBeltsIntakeSpeed: float = 0.8
-    kBeltsAlignmentSpeed: float = 0.2
-    kBeltsEjectSpeed: float = 0.8
-    kBeltsLaunchSpeed: float = 0.8
+    kBeltsIntakeSpeed: float = 0.6
+    kBeltsEjectSpeed: float = 0.6
+    kBeltsLaunchSpeed: float = 0.6
 
-    kIntakeTriggerDistanceIn: float = 120.0
-    kIntakeTriggerDistanceOut: float = 320.0
-    kLauncherTriggerDistanceIn: float = 300.0
-    kLauncherTriggerDistanceAlign: float = 75.0
-    kLauncherTargetDistanceMin: float = 50.0
-    kLauncherTargetDistanceMax: float = 90.0
+    kIntakeTriggerDistanceIn: float = 125.0
+    kIntakeTriggerDistanceOut: float = 250.0
+    kLauncherTriggerDistanceIn: float = 160.0
+    kLauncherTargetDistanceMin: float = 40.0
+    kLauncherTargetDistanceMax: float = 100.0
 
     kReloadDelay: units.seconds = 0.2
 
@@ -167,21 +165,24 @@ class Subsystems:
     kArmInputLimiter: float = 0.5
     kArmTargetAlignmentPositionTolerance: float = 0.1
     
-    kArmPositionIntakeMax: float = 8.5 # TODO: recalibrate with on-field testing
-    kArmPositionSubwoofer: float = 10.4 # TODO: recalibrate with on-field testing
-    kArmPositionPodium: float = 7.85 # TODO: recalibrate with on-field testing
-    kArmPositionAmp: float = 10.5 # TODO: recalibrate with on-field testing
+    kArmPositionSubwoofer: float = 9.8 # TODO: recalibrate with on-field testing
+    kArmPositionPodium: float = 3.5 # TODO: recalibrate with on-field testing
+    kArmPositionAmp: float = 9.5
     kArmPositionShuttle: float = 9.5 # TODO: recalibrate with on-field testing
     kArmPositionClimber: float = 1.0
+    kArmPositionIntakeMax: float = 8.5
 
     # TODO: recalibrate with on-field testing
     kArmPositionTargets: list[LauncherArmPositionTarget] = [
-      LauncherArmPositionTarget(1.00, 10.5),
-      LauncherArmPositionTarget(1.35, 10.1),
-      LauncherArmPositionTarget(2.3, 5.65),
-      LauncherArmPositionTarget(3.65, 3.3),
-      LauncherArmPositionTarget(5.0, 1.67),
-      LauncherArmPositionTarget(6.2, 1.44)
+      LauncherArmPositionTarget(1.0, 10.0),
+      LauncherArmPositionTarget(1.35, 9.8), # subwoofer
+      LauncherArmPositionTarget(2.45, 4.7), # front bumper to center note pickup
+      LauncherArmPositionTarget(2.88, 3.5), # podium
+      LauncherArmPositionTarget(3.35, 2.6), # rear bumper to center note pickup
+      LauncherArmPositionTarget(4.25, 2.0), # front bumper corner to stage line
+      LauncherArmPositionTarget(5.45, 1.8), # front bumper to wing line
+      LauncherArmPositionTarget(6.55, 1.6),
+      LauncherArmPositionTarget(7.65, 1.4)
     ]
 
   class Climber:

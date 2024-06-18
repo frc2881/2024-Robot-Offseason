@@ -59,7 +59,7 @@ class LauncherArmSubsystem(Subsystem):
         self._setIsAlignedToTarget(position)
       ]
     ).until(
-      lambda: utils.isAutonomousMode() and self.isAlignedToTarget()
+      lambda: self.isAlignedToTarget()
     ).beforeStarting(
       lambda: self.clearTargetAlignment()
     ).finallyDo(
@@ -74,7 +74,7 @@ class LauncherArmSubsystem(Subsystem):
         self._setIsAlignedToTarget(position)
       ]
     ).until(
-      lambda: utils.isAutonomousMode() and self.isAlignedToTarget()
+      lambda: self.isAlignedToTarget() and utils.isAutonomousMode()
     ).beforeStarting(
       lambda: self.clearTargetAlignment()
     ).finallyDo(
@@ -85,7 +85,7 @@ class LauncherArmSubsystem(Subsystem):
     return self._armEncoder.getPosition()
 
   def _getTargetPosition(self, targetDistance: float) -> float:
-    targetPosition = utils.getInterpolatedValue(self._targetDistances, self._targetPositions, targetDistance)
+    targetPosition = utils.getInterpolatedValue(targetDistance, self._targetDistances, self._targetPositions)
     if utils.isValueInRange(targetPosition, self._constants.kArmMotorReverseSoftLimit, self._constants.kArmMotorForwardSoftLimit):
       return targetPosition
     else:

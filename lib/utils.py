@@ -1,6 +1,5 @@
 from typing import Any, Callable, TypeVar
 import math
-from commands2 import TimedCommandRobot
 import numpy
 import json
 import time
@@ -9,9 +8,9 @@ import wpimath
 from wpimath.geometry import Pose2d, Pose3d, Rotation2d
 from wpilib import DriverStation
 from rev import CANSparkBase, REVLibError
-import robot
 from lib import logger
 from lib.classes import Alliance, RobotMode, RobotState
+import robot
 
 T = TypeVar("T")
 
@@ -81,7 +80,7 @@ def getInterpolatedValue(x: float, xs: list[float], ys: list[float]) -> float:
   try:
     return numpy.interp([x], xs, ys)[0]
   except:
-    return 0
+    return math.nan
 
 def enableSoftLimits(controller: CANSparkBase, isEnabled: bool) -> None:
   controller.enableSoftLimit(CANSparkBase.SoftLimitDirection.kForward, isEnabled)

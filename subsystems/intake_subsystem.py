@@ -76,17 +76,6 @@ class IntakeSubsystem(Subsystem):
       ).until(
         lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIn
       )
-    ).andThen(
-      cmd.waitSeconds(0.1)
-    ).andThen(
-      self.run(
-        lambda: [
-          self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsAlignmentSpeed),
-          self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsAlignmentSpeed)
-        ]
-      ).until(
-        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceAlign
-      )
     ).finallyDo(
       lambda end: self.reset()
     ).withName("IntakeSubsystem:Run")
