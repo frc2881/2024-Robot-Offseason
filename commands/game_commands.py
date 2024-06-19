@@ -16,11 +16,11 @@ class GameCommands:
 
   def runIntakeCommand(self, intakeDirection: IntakeDirection) -> Command:
     return cmd.sequence(
-      self.robot.intakeSubsystem.runCommand(intakeDirection).deadlineWith(
+      self.robot.intakeSubsystem.runCommand(
+        intakeDirection
+      ).deadlineWith(
         self.robot.launcherArmSubsystem.alignToPositionCommand(
-          constants.Subsystems.Launcher.kArmPositionIntakeMax
-        ).onlyIf(
-          lambda: self.robot.launcherArmSubsystem.getPosition() > constants.Subsystems.Launcher.kArmPositionIntakeMax
+          constants.Subsystems.Launcher.kArmPositionIntake
         )
       ),
       self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
