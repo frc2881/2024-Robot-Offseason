@@ -43,7 +43,7 @@ class GameCommands:
         self.robot.driveSubsystem.alignToTargetCommand(
           lambda: self.robot.localizationSubsystem.getPose(), 
           lambda: self.robot.localizationSubsystem.getTargetYaw()
-        ).withTimeout(utils.getValueForRobotMode(2.0, float("inf"))),
+        ).withTimeout(utils.getValueForRobotMode(1.0, float("inf"))),
         self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short)
       ),
       self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
@@ -54,7 +54,7 @@ class GameCommands:
       cmd.parallel(
         self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
         self.runLauncherWarmupCommand()
-      ).withTimeout(utils.getValueForRobotMode(2.0, float("inf")))
+      ).withTimeout(utils.getValueForRobotMode(1.0, float("inf")))
     ).withName("GameCommands:AlignLauncherToTarget")
 
   def alignLauncherToPositionCommand(self, position: float) -> Command:
@@ -62,7 +62,7 @@ class GameCommands:
       cmd.parallel(
         self.robot.launcherArmSubsystem.alignToPositionCommand(position),
         self.runLauncherWarmupCommand()
-      ).withTimeout(utils.getValueForRobotMode(2.0, float("inf")))
+      ).withTimeout(utils.getValueForRobotMode(1.0, float("inf")))
     ).withName("GameCommands:AlignLauncherToPosition")
   
   def runLauncherWarmupCommand(self) -> Command:

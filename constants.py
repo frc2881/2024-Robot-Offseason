@@ -42,7 +42,7 @@ class Subsystems:
 
     kPathFollowerTranslationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
-    kPathFindingConstraints = PathConstraints(5.8, 3.6, units.degreesToRadians(540), units.degreesToRadians(720))
+    kPathFindingConstraints = PathConstraints(4.2, 2.4, units.degreesToRadians(540), units.degreesToRadians(720))
 
     kSwerveModuleFrontLeftDrivingMotorCANId: int = 3
     kSwerveModuleFrontLeftTurningMotorCANId: int = 4
@@ -117,11 +117,12 @@ class Subsystems:
     kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kBeltsIntakeSpeed: float = 0.6
+    kBeltsAdjustmentSpeed: float = 0.4
     kBeltsEjectSpeed: float = 0.6
     kBeltsLaunchSpeed: float = 0.6
 
-    kIntakeTriggerDistanceIn: float = 120.0
-    kIntakeTriggerDistanceOut: float = 280.0
+    kIntakeTriggerDistanceIn: float = 180.0
+    kIntakeTriggerDistanceOut: float = 320.0
     kLauncherTriggerDistanceIn: float = 160.0
     kLauncherTargetDistanceMin: float = 45.0
     kLauncherTargetDistanceMax: float = 105.0
@@ -148,19 +149,19 @@ class Subsystems:
     kBottomRollerMotorCurrentLimit = 100
     kBottomRollerMotorMaxForwardOutput: float = 1.0
     kBottomRollerMotorMaxReverseOutput: float = -1.0
-    kBottomRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
+    kBottomRollerMotorIdleMode = CANSparkBase.IdleMode.kCoast
 
     kTopRollerMotorCurrentLimit = 100
     kTopRollerMotorMaxForwardOutput: float = 1.0
     kTopRollerMotorMaxReverseOutput: float = -1.0
-    kTopRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
+    kTopRollerMotorIdleMode = CANSparkBase.IdleMode.kCoast
 
     kRollersLaunchStartDelay: units.seconds = 0.75
 
     kRollersSpeedsSpeaker = LauncherRollersSpeeds(0.8, 0.8)
     kRollersSpeedsAmp = LauncherRollersSpeeds(0.27, 0.27)
     kRollersSpeedsShuttle = LauncherRollersSpeeds(0.6, 0.6)
-    kRollersSpeedsWarmup = LauncherRollersSpeeds(0.6, 0.6)
+    kRollersSpeedsWarmup = LauncherRollersSpeeds(0.8, 0.8)
 
     kArmInputLimiter: float = 0.5
     kArmTargetAlignmentPositionTolerance: float = 0.1
@@ -170,7 +171,7 @@ class Subsystems:
     kArmPositionAmp: float = 9.5
     kArmPositionShuttle: float = 9.5 # TODO: recalibrate with on-field testing
     kArmPositionClimber: float = 1.0
-    kArmPositionIntake: float = 3.0
+    kArmPositionIntake: float = 2.0
 
     # TODO: recalibrate with on-field testing
     kArmPositionTargets: list[LauncherArmPositionTarget] = [
@@ -217,7 +218,7 @@ class Sensors:
         Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(180.0))
       ),
       "Left": Transform3d(
-        Translation3d(units.inchesToMeters(6.0), units.inchesToMeters(3.0), units.inchesToMeters(14.0)),
+        Translation3d(units.inchesToMeters(5.75), units.inchesToMeters(3.25), units.inchesToMeters(14.0)),
         Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.5), units.degreesToRadians(90))
       ),
       "Right": Transform3d(
