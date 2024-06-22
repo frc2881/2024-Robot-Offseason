@@ -58,8 +58,6 @@ class LauncherArmSubsystem(Subsystem):
         self._armPIDController.setReference(position, CANSparkBase.ControlType.kSmartMotion),
         self._setIsAlignedToTarget(position)
       ]
-    ).until(
-      lambda: self.isAlignedToTarget()
     ).beforeStarting(
       lambda: self.clearTargetAlignment()
     ).finallyDo(

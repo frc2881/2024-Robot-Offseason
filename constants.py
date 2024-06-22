@@ -166,7 +166,7 @@ class Subsystems:
     kArmInputLimiter: float = 0.5
     kArmTargetAlignmentPositionTolerance: float = 0.1
     
-    kArmPositionSubwoofer: float = 9.8
+    kArmPositionSubwoofer: float = 9.7
     kArmPositionPodium: float = 3.6
     kArmPositionAmp: float = 9.5
     kArmPositionShuttle: float = 9.5 # TODO: recalibrate with on-field testing
@@ -175,9 +175,9 @@ class Subsystems:
 
     # TODO: recalibrate with on-field testing
     kArmPositionTargets: list[LauncherArmPositionTarget] = [
-      LauncherArmPositionTarget(1.0, 10.2),
-      LauncherArmPositionTarget(1.6, 9.8),
-      LauncherArmPositionTarget(2.45, 5.4),
+      LauncherArmPositionTarget(1.0, 9.8),
+      LauncherArmPositionTarget(1.27, 9.7),
+      LauncherArmPositionTarget(2.6, 5.1),
       LauncherArmPositionTarget(3.15, 3.5),
       LauncherArmPositionTarget(4.25, 1.6),
       LauncherArmPositionTarget(5.45, 1.4),
@@ -223,7 +223,7 @@ class Sensors:
       ),
       "Rear": Transform3d(
         Translation3d(units.inchesToMeters(-4.75), units.inchesToMeters(-11.25), units.inchesToMeters(20.0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(180.0))
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(183.0))
       )
     }
     kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
