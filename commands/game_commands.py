@@ -19,62 +19,54 @@ class GameCommands:
       self.robot.intakeSubsystem.runCommand(
         intakeDirection
       ).deadlineWith(
-        self.robot.launcherArmSubsystem.alignToPositionCommand(
-          constants.Subsystems.Launcher.kArmPositionIntake
-        )
+        self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.kArmPositionIntake)
       ),
+      self.robot.intakeSubsystem.alignCommand(),
       self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
     ).withName("GameCommands:RunIntake")
   
-  def ejectIntakeCommand(self) -> Command:
-    return self.robot.intakeSubsystem.ejectCommand().withName("GameCommands:EjectIntake")
-  
-  # TODO: validate that reload is still needed and if it works correctly with the delay constant
   def reloadIntakeCommand(self) -> Command:
     return cmd.sequence(
-      self.robot.intakeSubsystem.ejectCommand(),
-      cmd.waitSeconds(constants.Subsystems.Intake.kReloadDelay),
-      self.runIntakeCommand(IntakeDirection.Front)
+      self.robot.intakeSubsystem.alignCommand(),
+      self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
     ).withName("GameCommands:ReloadIntake")
 
+  def ejectIntakeCommand(self) -> Command:
+    return cmd.sequence(
+      self.robot.intakeSubsystem.ejectCommand()
+    ).withName("GameCommands:EjectIntake")
+  
   def alignRobotToTargetCommand(self) -> Command:
     return cmd.sequence(
       cmd.parallel(
         self.robot.driveSubsystem.alignToTargetCommand(
           lambda: self.robot.localizationSubsystem.getPose(), 
           lambda: self.robot.localizationSubsystem.getTargetYaw()
-        ).withTimeout(utils.getValueForRobotMode(1.0, float("inf"))),
+        ),
         self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short)
       ),
       self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
     ).withName("GameCommands:AlignRobotToTarget")
 
   def alignLauncherToTargetCommand(self) -> Command:
-    return cmd.sequence(
-      cmd.parallel(
-        self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
-        self.runLauncherWarmupCommand()
-      ).withTimeout(utils.getValueForRobotMode(1.0, float("inf")))
+    return cmd.parallel(
+      self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
+      self.robot.launcherRollersSubsystem.runCommand(constants.Subsystems.Launcher.kRollersSpeedsDefault)
     ).withName("GameCommands:AlignLauncherToTarget")
 
-  def alignLauncherToPositionCommand(self, position: float) -> Command:
-    return cmd.sequence(
-      cmd.parallel(
-        self.robot.launcherArmSubsystem.alignToPositionCommand(position),
-        self.runLauncherWarmupCommand()
-      ).withTimeout(utils.getValueForRobotMode(1.0, float("inf")))
+  def alignLauncherToPositionCommand(self, position: float, launcherRollerWarmupSpeeds = constants.Subsystems.Launcher.kRollersSpeedsDefault) -> Command:
+    return cmd.parallel(
+      self.robot.launcherArmSubsystem.alignToPositionCommand(position),
+      self.robot.launcherRollersSubsystem.runCommand(launcherRollerWarmupSpeeds)
     ).withName("GameCommands:AlignLauncherToPosition")
   
-  def runLauncherWarmupCommand(self) -> Command:
-    return self.robot.launcherRollersSubsystem.runCommand(
-      constants.Subsystems.Launcher.kRollersSpeedsWarmup
-    ).withName("GameCommands:RunLauncherWarmup")
-
-  def runLauncherCommand(self, launcherRollerSpeeds: LauncherRollersSpeeds) -> Command:
+  def runLauncherCommand(self, launcherRollerSpeeds = constants.Subsystems.Launcher.kRollersSpeedsDefault) -> Command:
     return cmd.parallel(
       self.robot.launcherRollersSubsystem.runCommand(launcherRollerSpeeds),
       cmd.sequence(
-        cmd.waitSeconds(constants.Subsystems.Launcher.kRollersLaunchStartDelay),
+        cmd.waitUntil(
+          lambda: self.robot.launcherRollersSubsystem.isLaunchReady(launcherRollerSpeeds)
+        ).withTimeout(constants.Subsystems.Launcher.kLaunchTimeout),
         self.robot.intakeSubsystem.launchCommand()
       )
     ).onlyIf(

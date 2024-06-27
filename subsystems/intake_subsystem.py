@@ -46,9 +46,9 @@ class IntakeSubsystem(Subsystem):
   def runCommand(self, intakeDirection: IntakeDirection) -> Command:
     return self.run(
       lambda: [
-        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsIntakeSpeed),
-        self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsIntakeSpeed),
-        self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsIntakeSpeed)
+        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake),
+        self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake),
+        self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedIntake)
       ]
     ).until(
       lambda: self._getIntakeTargetDistance() <= self._constants.kIntakeTriggerDistanceIn
@@ -57,9 +57,9 @@ class IntakeSubsystem(Subsystem):
     ).andThen(
       self.run(
         lambda: [
-          self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsIntakeSpeed),
-          self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsIntakeSpeed),
-          self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsIntakeSpeed)
+          self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake),
+          self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake),
+          self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedIntake)
         ]
       ).until(
         lambda: self._getIntakeTargetDistance() >= self._constants.kIntakeTriggerDistanceOut
@@ -69,9 +69,9 @@ class IntakeSubsystem(Subsystem):
     ).andThen(
       self.run(
         lambda: [
-          self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsIntakeSpeed),
-          self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsIntakeSpeed),
-          self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsIntakeSpeed)
+          self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedIntake),
+          self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake),
+          self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake)
         ]
       ).until(
         lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIn
@@ -80,24 +80,49 @@ class IntakeSubsystem(Subsystem):
       lambda end: self.reset()
     ).withName("IntakeSubsystem:Run")
   
-  def ejectCommand(self) -> Command:
-    return self.startEnd(
+  def alignCommand(self) -> Command:
+    return self.run(
       lambda: [
-        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsEjectSpeed),
-        self._runTopRearBelts(MotorDirection.Reverse, self._constants.kBeltsEjectSpeed),
-        self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsEjectSpeed)
-      ],
-      lambda: self.reset()
+        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign),
+        self._runTopRearBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign),
+        self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign)
+      ]
+    ).until(
+      lambda: self._getLauncherTargetDistance() >= self._constants.kLauncherTargetDistanceMax
+    ).andThen(
+      self.run(
+        lambda: [
+          self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign),
+          self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign),
+          self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign)
+        ]
+      ).until(
+        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTargetDistanceMax
+      )
+    ).finallyDo(
+      lambda end: self.reset()
+    ).withName("IntakeSubsystem:Align")
+  
+  def ejectCommand(self) -> Command:
+    return self.run(
+      lambda: [
+        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsSpeedEject),
+        self._runTopRearBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedEject),
+        self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedEject)
+      ]
+    ).finallyDo(
+      lambda end: self.reset()
     ).withName("IntakeSubsystem:Eject")
 
   def launchCommand(self) -> Command:
-    return self.startEnd(
+    return self.run(
       lambda: [
-        self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsLaunchSpeed),
-        self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsLaunchSpeed),
-        self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsLaunchSpeed)
-      ],
-      lambda: self.reset()
+        self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedLaunch),
+        self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsSpeedLaunch),
+        self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsSpeedLaunch)
+      ]
+    ).finallyDo(
+      lambda end: self.reset()
     ).withName("IntakeSubsystem:Launch")
 
   def _runTopFrontBelts(self, motorDirection: MotorDirection, speed: float = 1.0) -> None:
@@ -130,7 +155,7 @@ class IntakeSubsystem(Subsystem):
         speed = 0
     self._bottomBeltsMotor.set(speed)
 
-  def isAlignedForLaunch(self) -> bool:
+  def isLaunchReady(self) -> bool:
     return utils.isValueInRange(self._getLauncherTargetDistance(), self._constants.kLauncherTargetDistanceMin, self._constants.kLauncherTargetDistanceMax)
   
   def reset(self) -> None:
@@ -139,7 +164,5 @@ class IntakeSubsystem(Subsystem):
     self._runBottomBelts(MotorDirection.Stopped)
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putNumber("Robot/Intake/IsAlignedForLaunch", self.isAlignedForLaunch())
-    SmartDashboard.putNumber("Robot/Intake/Belts/TopFront/Speed", self._topFrontBeltsMotor.get())
-    SmartDashboard.putNumber("Robot/Intake/Belts/TopRear/Speed", self._topRearBeltsMotor.get())
-    SmartDashboard.putNumber("Robot/Intake/Belts/Bottom/Speed", self._bottomBeltsMotor.get())
+    SmartDashboard.putNumber("Robot/Intake/IsLaunchReady", self.isLaunchReady())
+    SmartDashboard.putNumber("Robot/Intake/Belts/Speed", self._bottomBeltsMotor.get())

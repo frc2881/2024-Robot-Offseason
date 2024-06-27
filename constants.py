@@ -42,7 +42,7 @@ class Subsystems:
 
     kPathFollowerTranslationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
-    kPathFindingConstraints = PathConstraints(4.2, 2.4, units.degreesToRadians(540), units.degreesToRadians(720))
+    kPathFindingConstraints = PathConstraints(4.2, 2.8, units.degreesToRadians(540), units.degreesToRadians(720))
 
     kSwerveModuleFrontLeftDrivingMotorCANId: int = 3
     kSwerveModuleFrontLeftTurningMotorCANId: int = 4
@@ -116,18 +116,16 @@ class Subsystems:
     kTopRearBeltsMotorMaxReverseOutput: float = -0.8
     kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
-    kBeltsIntakeSpeed: float = 0.6
-    kBeltsAdjustmentSpeed: float = 0.4
-    kBeltsEjectSpeed: float = 0.6
-    kBeltsLaunchSpeed: float = 0.6
+    kBeltsSpeedIntake: float = 0.6
+    kBeltsSpeedAlign: float = 0.2
+    kBeltsSpeedEject: float = 0.6
+    kBeltsSpeedLaunch: float = 0.6
 
-    kIntakeTriggerDistanceIn: float = 180.0
+    kIntakeTriggerDistanceIn: float = 240.0 
     kIntakeTriggerDistanceOut: float = 320.0
-    kLauncherTriggerDistanceIn: float = 160.0
-    kLauncherTargetDistanceMin: float = 45.0
-    kLauncherTargetDistanceMax: float = 105.0
-
-    kReloadDelay: units.seconds = 0.2
+    kLauncherTriggerDistanceIn: float = 120.0
+    kLauncherTargetDistanceMin: float = 60.0
+    kLauncherTargetDistanceMax: float = 120.0
 
   class Launcher:
     kArmMotorCANId: int = 11
@@ -146,44 +144,48 @@ class Subsystems:
     kArmMotorSmartMotionMaxVelocity: float = (33.0 / kArmMotorPositionConversionFactor) * 60
     kArmMotorSmartMotionMaxAccel: float = 100.0 / kArmMotorVelocityConversionFactor
 
+    kRollerMotorFreeSpeedRpm: float = 6238.73054766
+
     kBottomRollerMotorCurrentLimit = 100
     kBottomRollerMotorMaxForwardOutput: float = 1.0
     kBottomRollerMotorMaxReverseOutput: float = -1.0
-    kBottomRollerMotorIdleMode = CANSparkBase.IdleMode.kCoast
+    kBottomRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kTopRollerMotorCurrentLimit = 100
     kTopRollerMotorMaxForwardOutput: float = 1.0
     kTopRollerMotorMaxReverseOutput: float = -1.0
-    kTopRollerMotorIdleMode = CANSparkBase.IdleMode.kCoast
-
-    kRollersLaunchStartDelay: units.seconds = 0.75
-
-    kRollersSpeedsSpeaker = LauncherRollersSpeeds(0.8, 0.8)
-    kRollersSpeedsAmp = LauncherRollersSpeeds(0.27, 0.27)
-    kRollersSpeedsShuttle = LauncherRollersSpeeds(0.6, 0.6)
-    kRollersSpeedsWarmup = LauncherRollersSpeeds(0.8, 0.8)
+    kTopRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kArmInputLimiter: float = 0.5
     kArmTargetAlignmentPositionTolerance: float = 0.1
-    
-    kArmPositionSubwoofer: float = 9.7
-    kArmPositionPodium: float = 3.6
-    kArmPositionAmp: float = 9.5
-    kArmPositionShuttle: float = 9.5 # TODO: recalibrate with on-field testing
-    kArmPositionClimber: float = 1.0
-    kArmPositionIntake: float = 2.0
 
-    # TODO: recalibrate with on-field testing
+    kRollersSpeedsDefault = LauncherRollersSpeeds(0.80, 0.80)
+    kRollersSpeedsAmp = LauncherRollersSpeeds(0.30, 0.35)
+    kRollersSpeedsShuttle = LauncherRollersSpeeds(0.60, 0.60)
+
+    kArmPositionSubwoofer: float = 9.70
+    kArmPositionPodium: float = 3.80
+    kArmPositionAmp: float = 9.50
+    kArmPositionShuttle: float = 1.00
+    kArmPositionClimber: float = 1.00
+    kArmPositionIntake: float = 2.00
+
     kArmPositionTargets: list[LauncherArmPositionTarget] = [
-      LauncherArmPositionTarget(1.0, 9.8),
-      LauncherArmPositionTarget(1.27, 9.7),
-      LauncherArmPositionTarget(2.6, 5.1),
-      LauncherArmPositionTarget(3.15, 3.5),
-      LauncherArmPositionTarget(4.25, 1.6),
-      LauncherArmPositionTarget(5.45, 1.4),
-      LauncherArmPositionTarget(6.55, 1.2),
-      LauncherArmPositionTarget(7.65, 1.1)
+      LauncherArmPositionTarget(0.00, 10.0),
+      LauncherArmPositionTarget(1.00, 10.0),
+      LauncherArmPositionTarget(1.25, kArmPositionSubwoofer),
+      LauncherArmPositionTarget(2.50, 5.00),
+      LauncherArmPositionTarget(2.90, kArmPositionPodium),
+      LauncherArmPositionTarget(3.45, 3.00),
+      LauncherArmPositionTarget(4.00, 2.40),
+      LauncherArmPositionTarget(4.75, 1.60),
+      LauncherArmPositionTarget(5.15, 1.25),
+      LauncherArmPositionTarget(6.05, 1.10),
+      LauncherArmPositionTarget(7.00, 1.00)
     ]
+
+    kRollerSpeedsTargetThreshold: float = 0.9
+    kLaunchTimeout: units.seconds = 1.5
 
   class Climber:
     kArmLeftMotorCANId: int = 16
@@ -213,17 +215,17 @@ class Sensors:
 
   class Pose:
     kPoseSensors: dict[str, Transform3d] = {
-      "Left": Transform3d(
-        Translation3d(units.inchesToMeters(5.75), units.inchesToMeters(3.25), units.inchesToMeters(14.0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.5), units.degreesToRadians(90))
+      "Rear": Transform3d(
+        Translation3d(units.inchesToMeters(-4.75), units.inchesToMeters(-11.25), units.inchesToMeters(20.0)),
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(183.0))
       ),
       "Right": Transform3d(
         Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-11.5), units.inchesToMeters(15.5)),
         Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-28.4), units.degreesToRadians(-90.0))
       ),
-      "Rear": Transform3d(
-        Translation3d(units.inchesToMeters(-4.75), units.inchesToMeters(-11.25), units.inchesToMeters(20.0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(183.0))
+      "Left": Transform3d(
+        Translation3d(units.inchesToMeters(5.75), units.inchesToMeters(3.25), units.inchesToMeters(14.0)),
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.5), units.degreesToRadians(90))
       )
     }
     kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
@@ -294,3 +296,4 @@ class Game:
     }
 
     kPickupTimeout: units.seconds = 4.5
+    kAlignmentTimeout: units.seconds = 1.5

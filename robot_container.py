@@ -147,16 +147,16 @@ class RobotContainer:
         lambda: self.operatorController.getLeftY()
       )
     )
-    self.operatorController.rightTrigger().whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsSpeaker))
+    self.operatorController.rightTrigger().whileTrue(self.gameCommands.runLauncherCommand())
     self.operatorController.leftTrigger().whileTrue(self.gameCommands.alignLauncherToTargetCommand())
     self.operatorController.rightBumper().whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsAmp))
-    # self.operatorController.leftBumper().whileTrue(cmd.none())
+    self.operatorController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionAmp, constants.Subsystems.Launcher.kRollersSpeedsAmp))
     # self.operatorController.rightStick().whileTrue(cmd.none())
     # self.operatorController.leftStick().whileTrue(cmd.none())
     self.operatorController.povUp().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionPodium))
     self.operatorController.povDown().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionSubwoofer))
-    self.operatorController.povLeft().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionShuttle))
-    self.operatorController.povRight().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionAmp))
+    self.operatorController.povLeft().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.kArmPositionShuttle, constants.Subsystems.Launcher.kRollersSpeedsShuttle))
+    # self.operatorController.povRight().whileTrue(cmd.none())
     # self.operatorController.a().whileTrue(cmd.none())
     # self.operatorController.b().whileTrue(cmd.none())
     # self.operatorController.y().whileTrue(cmd.none())
@@ -270,7 +270,7 @@ class RobotContainer:
     lightsMode = LightsMode.Default
     if self.launcherDistanceSensor.hasTarget() or self.intakeDistanceSensor.hasTarget():
       lightsMode = LightsMode.IntakeNotReady
-      if self.intakeSubsystem.isAlignedForLaunch():
+      if self.intakeSubsystem.isLaunchReady():
         lightsMode = LightsMode.IntakeReady
         if utils.getRobotState() == RobotState.Disabled:
           if not self.localizationSubsystem.hasVisionTargets():

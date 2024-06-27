@@ -36,14 +36,16 @@ class AutoCommands:
       cmd.parallel(
         self.gameCommands.alignRobotToTargetCommand(),
         self.gameCommands.alignLauncherToTargetCommand()
-      ),
-      self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsSpeaker)
+      ).withTimeout(constants.Game.Auto.kAlignmentTimeout),
+      self.gameCommands.runLauncherCommand()
     ).withName("AutoCommands:Score")
   
-  def _scorePosition(self, position: float) -> Command:
+  def _scoreAtSubwoofer(self) -> Command:
     return cmd.sequence(
-      self.gameCommands.alignLauncherToPositionCommand(position),
-      self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsSpeaker)
+      self.gameCommands.alignLauncherToPositionCommand(
+        constants.Subsystems.Launcher.kArmPositionSubwoofer
+      ).withTimeout(constants.Game.Auto.kAlignmentTimeout),
+      self.gameCommands.runLauncherCommand()
     ).withName("AutoCommands:ScoreAtSubwoofer")
   
   # ######################################################################
@@ -60,7 +62,7 @@ class AutoCommands:
 
   def auto0(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer)
+      self._scoreAtSubwoofer()
     ).withName("AutoCommands:Auto0")
   
   # ############################################
@@ -69,7 +71,7 @@ class AutoCommands:
 
   def auto10_1(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self._scoreAtSubwoofer(),
       self._pickup(self._getPath(AutoPath.Pickup1)),
       self._score()
     ).withName("AutoCommands:Auto10_1")
@@ -206,7 +208,7 @@ class AutoCommands:
 
   def auto20_2(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self._scoreAtSubwoofer(),
       self._pickup(self._getPath(AutoPath.Pickup2)),
       self._score()
     ).withName("AutoCommands:Auto20_2")
@@ -333,14 +335,14 @@ class AutoCommands:
 
   def auto30_3(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self._scoreAtSubwoofer(),
       self._pickup(self._getPath(AutoPath.Pickup3)),
       self._score()
     ).withName("AutoCommands:Auto30_3")
   
   def auto30_73(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self._scoreAtSubwoofer(),
       self._pickup(self._getPath(AutoPath.Pickup73)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score()
@@ -348,7 +350,7 @@ class AutoCommands:
    
   def auto30_83(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self._scoreAtSubwoofer(),
       self._pickup(self._getPath(AutoPath.Pickup8)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score()
@@ -356,7 +358,7 @@ class AutoCommands:
   
   def auto30_73_83(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self._scoreAtSubwoofer(),
       self._pickup(self._getPath(AutoPath.Pickup73)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score(),
@@ -367,7 +369,7 @@ class AutoCommands:
    
   def auto30_83_73(self) -> Command:
     return cmd.sequence(
-      self._scorePosition(constants.Subsystems.Launcher.kArmPositionSubwoofer),
+      self._scoreAtSubwoofer(),
       self._pickup(self._getPath(AutoPath.Pickup8)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score(),

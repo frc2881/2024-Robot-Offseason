@@ -49,7 +49,7 @@ class ClimberSubsystem(Subsystem):
 
   def moveArmUpCommand(self) -> Command:
     return self.startEnd(
-      lambda: self._armLeftMotor.set(0.6),
+      lambda: self._armLeftMotor.set(0.5),
       lambda: self._armLeftMotor.set(0)
     ).withName("ClimberSubsystem:MoveArmUp")
   

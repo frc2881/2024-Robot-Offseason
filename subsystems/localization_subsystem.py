@@ -28,9 +28,26 @@ class LocalizationSubsystem(Subsystem):
       Pose2d()
     )
 
-    utils.addRobotPeriodic(lambda: [ self._updatePose() ], 0.033)
+    self._currentAlliance = None
+    self._targetPose = Pose3d()
+    self._targetPoseYawTransform = Pose2d()
+    self._targetPoseDistanceTransform = Pose2d()
+    self._targetPosePitchTransform = Pose3d()
+    self._targetYaw: float = 0.0
+    self._targetPitch: float = 0.0
+    self._targetDistance: float = 0.0
+
+    # utils.addRobotPeriodic(lambda: [ 
+    #   self._updateTargetPose(),
+    #   self._updatePose(),
+    #   self._updateTargetInfo(),
+    #   self._updateTelemetry()
+    # ], 0.033)
 
   def periodic(self) -> None:
+    self._updateTargetPose()
+    self._updatePose()
+    self._updateTargetInfo()
     self._updateTelemetry()
 
   def _updatePose(self) -> None:
@@ -75,40 +92,24 @@ class LocalizationSubsystem(Subsystem):
         return True
     return False
 
-  def getTargetPose(self) -> Pose3d:
-    return utils.getValueForAlliance(
-      constants.Game.Field.Targets.kBlueSpeaker, 
-      constants.Game.Field.Targets.kRedSpeaker
-    )
-
-  def getTargetYaw(self) -> float:
-    robotPose = self.getPose()
-    targetPose = self.getTargetPose().toPose2d().transformBy(
-      Transform2d(
-        utils.getValueForAlliance(
-          constants.Game.Field.Targets.kSpeakerTargetYawTransformX, 
-          -constants.Game.Field.Targets.kSpeakerTargetYawTransformX
-        ), 
-        constants.Game.Field.Targets.kSpeakerTargetYTransform, 
-        Rotation2d.fromDegrees(0)
+  def _updateTargetPose(self) -> None:
+    if utils.getAlliance() != self._currentAlliance:
+      self._currentAlliance = utils.getAlliance()
+      self._targetPose = utils.getValueForAlliance(
+        constants.Game.Field.Targets.kBlueSpeaker, 
+        constants.Game.Field.Targets.kRedSpeaker
       )
-    )
-    targetTranslation = targetPose.relativeTo(robotPose).translation()
-    targetRotation = Rotation2d(targetTranslation.X(), targetTranslation.Y()).rotateBy(Rotation2d.fromDegrees(180)).rotateBy(robotPose.rotation())
-    return utils.wrapAngle(targetRotation.degrees())
-  
-  def getTargetPitch(self) -> float:
-    return utils.getPitchToPose(
-      Pose3d(self.getPose()),
-      self.getTargetPose().transformBy(
-        Transform3d(0, 0, constants.Game.Field.Targets.kSpeakerTargetPitchTransformZ, Rotation3d())
+      self._targetPoseYawTransform = self._targetPose.toPose2d().transformBy(
+        Transform2d(
+          utils.getValueForAlliance(
+            constants.Game.Field.Targets.kSpeakerTargetYawTransformX, 
+            -constants.Game.Field.Targets.kSpeakerTargetYawTransformX
+          ), 
+          constants.Game.Field.Targets.kSpeakerTargetYTransform, 
+          Rotation2d.fromDegrees(0)
+        )
       )
-    )
-  
-  def getTargetDistance(self) -> float:
-    return utils.getDistanceToPose(
-      self.getPose(),
-      self.getTargetPose().toPose2d().transformBy(
+      self._targetPoseDistanceTransform = self._targetPose.toPose2d().transformBy(
         Transform2d(
           utils.getValueForAlliance(
             -constants.Game.Field.Targets.kSpeakerTargetDistanceTransformX, 
@@ -116,7 +117,26 @@ class LocalizationSubsystem(Subsystem):
           ), 0, Rotation2d.fromDegrees(0)
         )
       )
-    )
+      self._targetPosePitchTransform = self._targetPose.transformBy(
+        Transform3d(0, 0, constants.Game.Field.Targets.kSpeakerTargetPitchTransformZ, Rotation3d())
+      )
+
+  def _updateTargetInfo(self) -> None:
+    robotPose = self.getPose()
+    targetTranslation = self._targetPoseYawTransform.relativeTo(robotPose).translation()
+    targetRotation = Rotation2d(targetTranslation.X(), targetTranslation.Y()).rotateBy(Rotation2d.fromDegrees(180)).rotateBy(robotPose.rotation())
+    self._targetYaw = utils.wrapAngle(targetRotation.degrees())
+    self._targetPitch = utils.getPitchToPose(Pose3d(robotPose), self._targetPosePitchTransform)
+    self._targetDistance = utils.getDistanceToPose(robotPose, self._targetPoseDistanceTransform)
+
+  def getTargetYaw(self) -> float:
+    return self._targetYaw
+  
+  def getTargetPitch(self) -> float:
+    return self._targetPitch
+  
+  def getTargetDistance(self) -> float:
+    return self._targetDistance
 
   def _updateTelemetry(self) -> None:
     robotPose = self.getPose()
