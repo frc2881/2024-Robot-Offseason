@@ -21,7 +21,6 @@ class GameCommands:
       ).deadlineWith(
         self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.kArmPositionIntake)
       ),
-      self.robot.intakeSubsystem.alignCommand(),
       self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
     ).withName("GameCommands:RunIntake")
   

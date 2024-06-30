@@ -125,7 +125,7 @@ class RobotContainer:
       )
     )
     self.driverController.rightTrigger().whileTrue(self.gameCommands.runIntakeCommand(IntakeDirection.Front))
-    self.driverController.leftTrigger().whileTrue(self.gameCommands.runIntakeCommand(IntakeDirection.Rear))
+    self.driverController.leftTrigger().whileTrue(self.gameCommands.reloadIntakeCommand())
     self.driverController.rightBumper().whileTrue(self.gameCommands.ejectIntakeCommand())
     self.driverController.leftBumper().whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.kRollersSpeedsShuttle))
     self.driverController.rightStick().whileTrue(self.gameCommands.alignRobotToTargetCommand())

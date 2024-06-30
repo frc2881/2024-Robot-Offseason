@@ -97,7 +97,7 @@ class IntakeSubsystem(Subsystem):
           self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign)
         ]
       ).until(
-        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTargetDistanceMax
+        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIn
       )
     ).finallyDo(
       lambda end: self.reset()
