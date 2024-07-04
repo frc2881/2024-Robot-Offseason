@@ -7,7 +7,8 @@ from lib.classes import Alliance, RobotState
 from lib.controllers.game_controller import GameController
 from lib.controllers.lights_controller import LightsController
 from lib.sensors.distance_sensor import DistanceSensor
-from lib.sensors.gyro_sensor import GyroSensor
+from lib.sensors.gyro_sensor_adis16470 import GyroSensor as GyroSensor_ADIS16470
+from lib.sensors.gyro_sensor_navx2 import GyroSensor as GyroSensor_navX2
 from lib.sensors.pose_sensor import PoseSensor
 from lib.sensors.object_sensor import ObjectSensor
 from subsystems.drive_subsystem import DriveSubsystem
@@ -44,15 +45,8 @@ class RobotContainer:
     )
 
   def _initSensors(self) -> None:
-    self.gyroSensor = GyroSensor(
-      constants.Sensors.Gyro.kIMUAxisYaw,
-      constants.Sensors.Gyro.kIMUAxisPitch,
-      constants.Sensors.Gyro.kIMUAxisRoll,
-      constants.Sensors.Gyro.kSPIPort,
-      constants.Sensors.Gyro.kInitCalibrationTime,
-      constants.Sensors.Gyro.kCommandCalibrationTime,
-      constants.Sensors.Gyro.kCommandCalibrationDelay
-    )
+    # self.gyroSensor = GyroSensor_ADIS16470(constants.Sensors.Gyro)
+    self.gyroSensor = GyroSensor_navX2(constants.Sensors.Gyro)
     self.poseSensors: list[PoseSensor] = []
     for cameraName, cameraTransform in constants.Sensors.Pose.kPoseSensors.items():
       self.poseSensors.append(PoseSensor(
@@ -254,7 +248,7 @@ class RobotContainer:
 
   def teleopInit(self) -> None:
     self.resetRobot()
-    self.gyroSensor.setRobotToField(self.localizationSubsystem.getPose())
+    self.gyroSensor.alignRobotToField(self.localizationSubsystem.getPose())
 
   def testInit(self) -> None:
     self.resetRobot()

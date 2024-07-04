@@ -212,14 +212,14 @@ class DriveSubsystem(Subsystem):
       self._swerveModuleRearLeft.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
       self._swerveModuleRearRight.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
 
-  def alignToTargetCommand(self, getRobotPose: Callable[[], Pose2d], getTargetYaw: Callable[[], float]) -> Command:
+  def alignToTargetCommand(self, getRobotPose: Callable[[], Pose2d], getTargetHeading: Callable[[], float]) -> Command:
     return self.run(
-      lambda: self._alignToTarget(getRobotPose().rotation().degrees(), getTargetYaw())
+      lambda: self._alignToTarget(getRobotPose().rotation().degrees())
     ).beforeStarting(
       lambda: [
         self.clearTargetAlignment(),
-        self._targetAlignmentThetaController.setSetpoint(getTargetYaw()),
-        self._targetAlignmentThetaController.reset()
+        self._targetAlignmentThetaController.reset(),
+        self._targetAlignmentThetaController.setSetpoint(utils.wrapAngle(getTargetHeading() + 180))  
       ]
     ).onlyIf(
       lambda: self._lockState != DriveLockState.Locked
@@ -227,8 +227,8 @@ class DriveSubsystem(Subsystem):
       lambda: self._isAlignedToTarget
     ).withName("DriveSubsystem:AlignToTarget")
 
-  def _alignToTarget(self, robotYaw: float, targetYaw: float) -> None:
-    speedRotation: float = self._targetAlignmentThetaController.calculate(robotYaw)
+  def _alignToTarget(self, robotHeading: float) -> None:
+    speedRotation: float = self._targetAlignmentThetaController.calculate(robotHeading)
     speedRotation += math.copysign(0.15, speedRotation)
     if self._targetAlignmentThetaController.atSetpoint():
       speedRotation = 0

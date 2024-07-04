@@ -30,23 +30,13 @@ class LocalizationSubsystem(Subsystem):
 
     self._currentAlliance = None
     self._targetPose = Pose3d()
-    self._targetPoseYawTransform = Pose2d()
-    self._targetPoseDistanceTransform = Pose2d()
-    self._targetPosePitchTransform = Pose3d()
-    self._targetYaw: float = 0.0
+    self._targetHeading: float = 0.0
     self._targetPitch: float = 0.0
     self._targetDistance: float = 0.0
 
-    # utils.addRobotPeriodic(lambda: [ 
-    #   self._updateTargetPose(),
-    #   self._updatePose(),
-    #   self._updateTargetInfo(),
-    #   self._updateTelemetry()
-    # ], 0.033)
-
   def periodic(self) -> None:
-    self._updateTargetPose()
     self._updatePose()
+    self._updateTargetPose()
     self._updateTargetInfo()
     self._updateTelemetry()
 
@@ -98,49 +88,28 @@ class LocalizationSubsystem(Subsystem):
       self._targetPose = utils.getValueForAlliance(
         constants.Game.Field.Targets.kBlueSpeaker, 
         constants.Game.Field.Targets.kRedSpeaker
-      )
-      self._targetPoseYawTransform = self._targetPose.toPose2d().transformBy(
-        Transform2d(
-          utils.getValueForAlliance(
-            constants.Game.Field.Targets.kSpeakerTargetYawTransformX, 
-            -constants.Game.Field.Targets.kSpeakerTargetYawTransformX
-          ), 
-          constants.Game.Field.Targets.kSpeakerTargetYTransform, 
-          Rotation2d.fromDegrees(0)
-        )
-      )
-      self._targetPoseDistanceTransform = self._targetPose.toPose2d().transformBy(
-        Transform2d(
-          utils.getValueForAlliance(
-            -constants.Game.Field.Targets.kSpeakerTargetDistanceTransformX, 
-            constants.Game.Field.Targets.kSpeakerTargetDistanceTransformX
-          ), 0, Rotation2d.fromDegrees(0)
-        )
-      )
-      self._targetPosePitchTransform = self._targetPose.transformBy(
-        Transform3d(0, 0, constants.Game.Field.Targets.kSpeakerTargetPitchTransformZ, Rotation3d())
+      ).transformBy(
+        constants.Game.Field.Targets.kSpeakerTargetTransform
       )
 
   def _updateTargetInfo(self) -> None:
-    robotPose = self.getPose()
-    targetTranslation = self._targetPoseYawTransform.relativeTo(robotPose).translation()
-    targetRotation = Rotation2d(targetTranslation.X(), targetTranslation.Y()).rotateBy(Rotation2d.fromDegrees(180)).rotateBy(robotPose.rotation())
-    self._targetYaw = utils.wrapAngle(targetRotation.degrees())
-    self._targetPitch = utils.getPitchToPose(Pose3d(robotPose), self._targetPosePitchTransform)
-    self._targetDistance = utils.getDistanceToPose(robotPose, self._targetPoseDistanceTransform)
+    robotPose = Pose3d(self.getPose())
+    self._targetDistance = utils.getDistanceToPose(robotPose, self._targetPose)
+    self._targetHeading = utils.getHeadingToPose(robotPose, self._targetPose)
+    self._targetPitch = utils.getPitchToPose(robotPose, self._targetPose)
 
-  def getTargetYaw(self) -> float:
-    return self._targetYaw
+  def getTargetDistance(self) -> float:
+    return self._targetDistance
+
+  def getTargetHeading(self) -> float:
+    return self._targetHeading
   
   def getTargetPitch(self) -> float:
     return self._targetPitch
   
-  def getTargetDistance(self) -> float:
-    return self._targetDistance
-
   def _updateTelemetry(self) -> None:
     robotPose = self.getPose()
     SmartDashboard.putNumberArray("Robot/Localization/Pose", [robotPose.X(), robotPose.Y(), robotPose.rotation().degrees()])
-    SmartDashboard.putNumber("Robot/Localization/Target/Yaw", self.getTargetYaw())
-    SmartDashboard.putNumber("Robot/Localization/Target/Pitch", self.getTargetPitch())
     SmartDashboard.putNumber("Robot/Localization/Target/Distance", self.getTargetDistance())
+    SmartDashboard.putNumber("Robot/Localization/Target/Heading", self.getTargetHeading())
+    SmartDashboard.putNumber("Robot/Localization/Target/Pitch", self.getTargetPitch())

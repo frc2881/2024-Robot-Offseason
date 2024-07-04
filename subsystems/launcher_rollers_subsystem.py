@@ -58,4 +58,4 @@ class LauncherRollersSubsystem(Subsystem):
     SmartDashboard.putNumber("Robot/Launcher/Rollers/Top/Speed/Target", self._topRollerMotor.get())
     SmartDashboard.putNumber("Robot/Launcher/Rollers/Top/Speed/Actual", self._topRollerMotorEncoder.getVelocity())
     SmartDashboard.putNumber("Robot/Launcher/Rollers/Bottom/Speed/Target", self._bottomRollerMotor.get())
-    SmartDashboard.putNumber("Robot/Launcher/Rollers/Bottom/Velocity/Actual", self._bottomRollerMotorEncoder.getVelocity())
+    SmartDashboard.putNumber("Robot/Launcher/Rollers/Bottom/Speed/Actual", self._bottomRollerMotorEncoder.getVelocity())

@@ -35,5 +35,5 @@ class ObjectSensor:
     targetInfo = self.getTargetInfo()
     SmartDashboard.putBoolean(f'{self._baseKey}/IsConnected', self._photonCamera.isConnected())
     SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())
-    SmartDashboard.putNumber(f'{self._baseKey}/Target/Yaw', targetInfo.getYaw())
+    SmartDashboard.putNumber(f'{self._baseKey}/Target/Heading', targetInfo.getYaw())
     SmartDashboard.putNumber(f'{self._baseKey}/Target/Area', targetInfo.getArea())

@@ -1,5 +1,5 @@
 import math
-from wpilib import ADIS16470_IMU, SPI
+from wpilib import ADIS16470_IMU, SPI, SerialPort
 from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Pose3d, Translation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from wpimath import units
@@ -205,13 +205,14 @@ class Subsystems:
 
 class Sensors:
   class Gyro:
-    kIMUAxisYaw = ADIS16470_IMU.IMUAxis.kZ
-    kIMUAxisRoll = ADIS16470_IMU.IMUAxis.kY
-    kIMUAxisPitch = ADIS16470_IMU.IMUAxis.kX
+    kSerialPort = SerialPort.Port.kUSB
     kSPIPort = SPI.Port.kOnboardCS0
+    kIMUAxisYaw = ADIS16470_IMU.IMUAxis.kZ
+    kIMUAxisPitch = ADIS16470_IMU.IMUAxis.kX
+    kIMUAxisRoll = ADIS16470_IMU.IMUAxis.kY
     kInitCalibrationTime = ADIS16470_IMU.CalibrationTime._8s
     kCommandCalibrationTime = ADIS16470_IMU.CalibrationTime._4s
-    kCommandCalibrationDelay: units.seconds = 4.0
+    kCalibrationWaitTime: units.seconds = 4.0
 
   class Pose:
     kPoseSensors: dict[str, Transform3d] = {
@@ -264,10 +265,12 @@ class Game:
       kBlueAmp = _aprilTagFieldLayout.getTagPose(5) or Pose3d()
       kRedAmp = _aprilTagFieldLayout.getTagPose(6) or Pose3d()
 
-      kSpeakerTargetYawTransformX: float = units.inchesToMeters(6.0)
-      kSpeakerTargetYTransform: float = units.inchesToMeters(-6.0)
-      kSpeakerTargetPitchTransformZ: float = units.inchesToMeters(24)
-      kSpeakerTargetDistanceTransformX: float = units.inchesToMeters(0)
+      kSpeakerTargetTransform = Transform3d(
+        units.inchesToMeters(6.0),
+        units.inchesToMeters(-6.0),
+        units.inchesToMeters(24),
+        Rotation3d()
+      )
 
   class Auto:
     kPaths: dict[AutoPath, PathPlannerPath] = {

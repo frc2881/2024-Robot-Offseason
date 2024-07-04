@@ -66,15 +66,16 @@ def convertVoltsToPsi(sensorVoltage: float, supplyVoltage: float) -> float:
 def wrapAngle(angle: float) -> float:
   return wpimath.inputModulus(angle, -180, 180)
 
-def getYawToPose(robotPose: Pose2d, targetPose: Pose2d) -> float:
-  translation = targetPose.relativeTo(robotPose).translation()
-  return wrapAngle(Rotation2d(translation.X(), translation.Y()).degrees())
+def getDistanceToPose(robotPose: Pose3d, targetPose: Pose3d) -> float:
+  return robotPose.toPose2d().translation().distance(targetPose.toPose2d().translation())
+
+def getHeadingToPose(robotPose: Pose3d, targetPose: Pose3d) -> float:
+  translation = targetPose.toPose2d().relativeTo(robotPose.toPose2d()).translation()
+  rotation = Rotation2d(translation.X(), translation.Y()).rotateBy(robotPose.toPose2d().rotation())
+  return wrapAngle(rotation.degrees())
 
 def getPitchToPose(robotPose: Pose3d, targetPose: Pose3d) -> float:
-  return math.degrees(math.atan2((targetPose - robotPose).Z(), getDistanceToPose(robotPose.toPose2d(), targetPose.toPose2d())))
-
-def getDistanceToPose(robotPose: Pose2d, targetPose: Pose2d) -> float:
-  return robotPose.translation().distance(targetPose.translation())
+  return math.degrees(math.atan2((targetPose - robotPose).Z(), getDistanceToPose(robotPose, targetPose)))
 
 def getInterpolatedValue(x: float, xs: list[float], ys: list[float]) -> float:
   try:

@@ -40,7 +40,7 @@ class GameCommands:
       cmd.parallel(
         self.robot.driveSubsystem.alignToTargetCommand(
           lambda: self.robot.localizationSubsystem.getPose(), 
-          lambda: self.robot.localizationSubsystem.getTargetYaw()
+          lambda: self.robot.localizationSubsystem.getTargetHeading()
         ),
         self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short)
       ),
