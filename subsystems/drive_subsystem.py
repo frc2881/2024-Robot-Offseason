@@ -219,7 +219,7 @@ class DriveSubsystem(Subsystem):
       lambda: [
         self.clearTargetAlignment(),
         self._targetAlignmentThetaController.reset(),
-        self._targetAlignmentThetaController.setSetpoint(utils.wrapAngle(getTargetHeading() + 180))  
+        self._targetAlignmentThetaController.setSetpoint(utils.wrapAngle(getTargetHeading() + self._constants.kTargetAlignmentHeadingInversion))  
       ]
     ).onlyIf(
       lambda: self._lockState != DriveLockState.Locked
@@ -229,7 +229,7 @@ class DriveSubsystem(Subsystem):
 
   def _alignToTarget(self, robotHeading: float) -> None:
     speedRotation: float = self._targetAlignmentThetaController.calculate(robotHeading)
-    speedRotation += math.copysign(0.15, speedRotation)
+    speedRotation += math.copysign(self._constants.kTargetAlignmentCarpetFrictionCoeff, speedRotation)
     if self._targetAlignmentThetaController.atSetpoint():
       speedRotation = 0
       self._isAlignedToTarget = True

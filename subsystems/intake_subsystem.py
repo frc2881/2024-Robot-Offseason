@@ -1,5 +1,5 @@
 from typing import Callable
-from commands2 import Subsystem, Command, cmd
+from commands2 import Subsystem, Command
 from wpilib import SmartDashboard
 from rev import CANSparkLowLevel, CANSparkMax
 from lib import utils, logger
@@ -51,7 +51,7 @@ class IntakeSubsystem(Subsystem):
         self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedIntake)
       ]
     ).until(
-      lambda: self._getIntakeTargetDistance() <= self._constants.kIntakeTriggerDistanceIn
+      lambda: self._getIntakeTargetDistance() <= self._constants.kIntakeTriggerDistanceRear
     ).onlyIf(
       lambda: intakeDirection == IntakeDirection.Rear
     ).andThen(
@@ -62,7 +62,7 @@ class IntakeSubsystem(Subsystem):
           self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedIntake)
         ]
       ).until(
-        lambda: self._getIntakeTargetDistance() >= self._constants.kIntakeTriggerDistanceOut
+        lambda: self._getIntakeTargetDistance() >= self._constants.kIntakeTriggerDistanceFront
       ).onlyIf(
         lambda: intakeDirection == IntakeDirection.Rear
       )
@@ -74,34 +74,11 @@ class IntakeSubsystem(Subsystem):
           self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake)
         ]
       ).until(
-        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIn
+        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIntake
       )
     ).finallyDo(
       lambda end: self.reset()
     ).withName("IntakeSubsystem:Run")
-  
-  def alignCommand(self) -> Command:
-    return self.run(
-      lambda: [
-        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign),
-        self._runTopRearBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign),
-        self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign)
-      ]
-    ).until(
-      lambda: self._getLauncherTargetDistance() >= self._constants.kLauncherTargetDistanceMax
-    ).andThen(
-      self.run(
-        lambda: [
-          self._runTopFrontBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign),
-          self._runTopRearBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign),
-          self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign)
-        ]
-      ).until(
-        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIn
-      )
-    ).finallyDo(
-      lambda end: self.reset()
-    ).withName("IntakeSubsystem:Align")
   
   def ejectCommand(self) -> Command:
     return self.run(
@@ -113,6 +90,19 @@ class IntakeSubsystem(Subsystem):
     ).finallyDo(
       lambda end: self.reset()
     ).withName("IntakeSubsystem:Eject")
+  
+  def alignCommand(self) -> Command:
+    return self.run(
+      lambda: [
+        self._runTopFrontBelts(MotorDirection.Forward, self._constants.kBeltsSpeedAlign),
+        self._runTopRearBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign),
+        self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedAlign)
+      ]
+    ).until(
+      lambda: self._getLauncherTargetDistance() >= self._constants.kLauncherTriggerDistanceAlign
+    ).finallyDo(
+      lambda end: self.reset()
+    ).withName("IntakeSubsystem:Align")
 
   def launchCommand(self) -> Command:
     return self.run(
@@ -156,7 +146,7 @@ class IntakeSubsystem(Subsystem):
     self._bottomBeltsMotor.set(speed)
 
   def isLaunchReady(self) -> bool:
-    return utils.isValueInRange(self._getLauncherTargetDistance(), self._constants.kLauncherTargetDistanceMin, self._constants.kLauncherTargetDistanceMax)
+    return utils.isValueInRange(self._getLauncherTargetDistance(), self._constants.kLauncherReadyDistanceMin, self._constants.kLauncherReadyDistanceMax)
   
   def reset(self) -> None:
     self._runTopFrontBelts(MotorDirection.Stopped)

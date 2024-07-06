@@ -5,7 +5,7 @@ import json
 import time
 import wpilib
 import wpimath
-from wpimath.geometry import Pose2d, Pose3d, Rotation2d
+from wpimath.geometry import Pose3d, Rotation2d
 from wpilib import DriverStation
 from rev import CANSparkBase, REVLibError
 from lib import logger

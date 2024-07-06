@@ -1,33 +1,22 @@
-from typing import TYPE_CHECKING
 from commands2 import Command, cmd
-from wpilib import SmartDashboard, RobotBase
+from wpilib import SerialPort, SmartDashboard, RobotBase
 from wpimath.geometry import Rotation2d, Pose2d
 import navx
 from lib import utils
-if TYPE_CHECKING: import constants
 
-class GyroSensor():
+class GyroSensor_NAVX2():
   def __init__(
       self,
-      constants: "constants.Sensors.Gyro"
+      serialPort: SerialPort.Port
     ) -> None:
-    self._gyro = navx.AHRS(constants.kSerialPort)
-    self._constants = constants
+    self._gyro = navx.AHRS(serialPort)
 
     self._baseKey = f'Robot/Sensor/Gyro'
 
     utils.addRobotPeriodic(self._updateTelemetry)
   
-  def _calibrate(self) -> None:
-    if RobotBase.isReal():
-      self._gyro.calibrate()
-
-  def _reset(self, heading: float) -> None:
-    self._gyro.reset()
-    self._gyro.setAngleAdjustment(heading)
-  
   def getHeading(self) -> float:
-    return utils.wrapAngle(self._gyro.getAngle())
+    return -utils.wrapAngle(self._gyro.getAngle())
   
   def getRotation(self) -> float:
     return Rotation2d.fromDegrees(self.getHeading())
@@ -41,11 +30,22 @@ class GyroSensor():
   def getTurnRate(self) -> float:
     return self._gyro.getRate()
   
+  def alignRobotToField(self, robotPose: Pose2d) -> None:
+    self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
+
+  def _reset(self, heading: float) -> None:
+    self._gyro.reset()
+    self._gyro.setAngleAdjustment(-heading)
+
   def resetCommand(self) -> Command:
     return cmd.runOnce(
       lambda: self._reset(0)
     ).ignoringDisable(True).withName("GyroSensor:Reset")
   
+  def _calibrate(self) -> None:
+    if RobotBase.isReal():
+      self._gyro.calibrate() # NO-OP as navX2 currently does automatic calibration
+
   def calibrateCommand(self) -> Command:
     return cmd.sequence(
       cmd.runOnce(
@@ -54,15 +54,12 @@ class GyroSensor():
           self._calibrate()
         ]
       ),
-      cmd.waitSeconds(self._constants.kCalibrationWaitTime),
+      cmd.waitSeconds(0.2),
       cmd.runOnce(
         lambda: SmartDashboard.putBoolean(f'{self._baseKey}/IsCalibrating', False)
       )
     ).ignoringDisable(True).withName("GyroSensor:Calibrate")
   
-  def alignRobotToField(self, robotPose: Pose2d) -> None:
-    self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
- 
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber(f'{self._baseKey}/Heading', self.getHeading())
     SmartDashboard.putNumber(f'{self._baseKey}/Pitch', self.getPitch())

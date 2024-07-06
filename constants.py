@@ -39,6 +39,8 @@ class Subsystems:
     kTargetAlignmentThetaControllerPIDConstants = PIDConstants(0.075, 0, 0, 0)
     kTargetAlignmentThetaControllerPositionTolerance: float = 1.0
     kTargetAlignmentThetaControllerVelocityTolerance: float = 1.0
+    kTargetAlignmentCarpetFrictionCoeff: float = 0.15
+    kTargetAlignmentHeadingInversion: float = 180.0
 
     kPathFollowerTranslationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
@@ -117,15 +119,18 @@ class Subsystems:
     kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kBeltsSpeedIntake: float = 0.6
-    kBeltsSpeedAlign: float = 0.2
+    kBeltsSpeedAlign: float = 0.3
     kBeltsSpeedEject: float = 0.6
     kBeltsSpeedLaunch: float = 0.6
 
-    kIntakeTriggerDistanceIn: float = 240.0 
-    kIntakeTriggerDistanceOut: float = 320.0
-    kLauncherTriggerDistanceIn: float = 80.0
-    kLauncherTargetDistanceMin: float = 50.0
-    kLauncherTargetDistanceMax: float = 120.0
+    kIntakeTriggerDistanceRear: float = 240.0 
+    kIntakeTriggerDistanceFront: float = 320.0
+    kLauncherTriggerDistanceIntake: float = 40.0
+    kLauncherTriggerDistanceAlign: float = 60.0
+    kLauncherReadyDistanceMin: float = 60.0
+    kLauncherReadyDistanceMax: float = 100.0
+
+    kReloadTimeout: units.seconds = 0.2
 
   class Launcher:
     kArmMotorCANId: int = 11
@@ -205,14 +210,16 @@ class Subsystems:
 
 class Sensors:
   class Gyro:
-    kSerialPort = SerialPort.Port.kUSB
-    kSPIPort = SPI.Port.kOnboardCS0
-    kIMUAxisYaw = ADIS16470_IMU.IMUAxis.kZ
-    kIMUAxisPitch = ADIS16470_IMU.IMUAxis.kX
-    kIMUAxisRoll = ADIS16470_IMU.IMUAxis.kY
-    kInitCalibrationTime = ADIS16470_IMU.CalibrationTime._8s
-    kCommandCalibrationTime = ADIS16470_IMU.CalibrationTime._4s
-    kCalibrationWaitTime: units.seconds = 4.0
+    class NAVX2:
+      kSerialPort = SerialPort.Port.kUSB
+    class ADIS16470:
+      kSPIPort = SPI.Port.kOnboardCS0
+      kIMUAxisYaw = ADIS16470_IMU.IMUAxis.kZ
+      kIMUAxisPitch = ADIS16470_IMU.IMUAxis.kX
+      kIMUAxisRoll = ADIS16470_IMU.IMUAxis.kY
+      kInitCalibrationTime = ADIS16470_IMU.CalibrationTime._8s
+      kCommandCalibrationTime = ADIS16470_IMU.CalibrationTime._4s
+      kCommandCalibrationDelay: units.seconds = 4.0
 
   class Pose:
     kPoseSensors: dict[str, Transform3d] = {
@@ -298,5 +305,5 @@ class Game:
       AutoPath.ScoreStage3: PathPlannerPath.fromPathFile(AutoPath.ScoreStage3.name)
     }
 
-    kPickupTimeout: units.seconds = 4.5
-    kAlignmentTimeout: units.seconds = 1.5
+    kPickupTimeout: units.seconds = 4.0
+    kAlignmentTimeout: units.seconds = 1.0

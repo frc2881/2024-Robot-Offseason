@@ -26,7 +26,8 @@ class GameCommands:
   
   def reloadIntakeCommand(self) -> Command:
     return cmd.sequence(
-      self.robot.intakeSubsystem.alignCommand(),
+      self.robot.intakeSubsystem.ejectCommand().withTimeout(constants.Subsystems.Intake.kReloadTimeout),
+      self.robot.intakeSubsystem.runCommand(IntakeDirection.Front),
       self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
     ).withName("GameCommands:ReloadIntake")
 
@@ -49,12 +50,14 @@ class GameCommands:
 
   def alignLauncherToTargetCommand(self) -> Command:
     return cmd.parallel(
+      self.robot.intakeSubsystem.alignCommand(),
       self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
       self.robot.launcherRollersSubsystem.runCommand(constants.Subsystems.Launcher.kRollersSpeedsDefault)
     ).withName("GameCommands:AlignLauncherToTarget")
 
   def alignLauncherToPositionCommand(self, position: float, launcherRollerWarmupSpeeds = constants.Subsystems.Launcher.kRollersSpeedsDefault) -> Command:
     return cmd.parallel(
+      self.robot.intakeSubsystem.alignCommand(),
       self.robot.launcherArmSubsystem.alignToPositionCommand(position),
       self.robot.launcherRollersSubsystem.runCommand(launcherRollerWarmupSpeeds)
     ).withName("GameCommands:AlignLauncherToPosition")

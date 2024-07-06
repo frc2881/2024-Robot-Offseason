@@ -1,35 +1,34 @@
-from typing import TYPE_CHECKING
 from commands2 import Command, cmd
-from wpilib import ADIS16470_IMU, SmartDashboard, RobotBase
+from wpilib import ADIS16470_IMU, SPI, SmartDashboard, RobotBase
+from wpimath import units
 from wpimath.geometry import Rotation2d, Pose2d
-from lib import utils
-if TYPE_CHECKING: import constants
+from lib import utils, logger
 
-class GyroSensor():
+class GyroSensor_ADIS16470():
   def __init__(
       self, 
-      constants: "constants.Sensors.Gyro"
+      spiPort: SPI.Port,
+      imuAxisYaw: ADIS16470_IMU.IMUAxis,
+      imuAxisPitch: ADIS16470_IMU.IMUAxis,
+      imuAxisRoll: ADIS16470_IMU.IMUAxis,
+      initCalibrationTime: ADIS16470_IMU.CalibrationTime,
+      commandCalibrationTime: ADIS16470_IMU.CalibrationTime,
+      commandCalibrationDelay: units.seconds
     ) -> None:
     self._gyro = ADIS16470_IMU(
-      constants.kIMUAxisYaw,
-      constants.kIMUAxisPitch,
-      constants.kIMUAxisRoll,
-      constants.kSPIPort,
-      constants.kInitCalibrationTime
+      imuAxisYaw,
+      imuAxisPitch,
+      imuAxisRoll,
+      spiPort,
+      initCalibrationTime
     )
-    self._constants = constants
+    self._commandCalibrationTime = commandCalibrationTime
+    self._commandCalibrationDelay = commandCalibrationDelay
 
     self._baseKey = f'Robot/Sensor/Gyro'
 
     utils.addRobotPeriodic(self._updateTelemetry)
 
-  def _calibrate(self) -> None:
-    if RobotBase.isReal():
-      self._gyro.calibrate()
-
-  def _reset(self, heading: float) -> None:
-    self._gyro.setGyroAngle(self._gyro.getYawAxis(), heading)
-  
   def getHeading(self) -> float:
     return utils.wrapAngle(self._gyro.getAngle())
   
@@ -45,28 +44,36 @@ class GyroSensor():
   def getTurnRate(self) -> float:
     return self._gyro.getRate()
   
+  def alignRobotToField(self, robotPose: Pose2d) -> None:
+    self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
+
+  def _reset(self, heading: float) -> None:
+    self._gyro.reset()
+    self._gyro.setGyroAngle(self._gyro.getYawAxis(), heading)
+
   def resetCommand(self) -> Command:
     return cmd.runOnce(
       lambda: self._reset(0)
     ).ignoringDisable(True).withName("GyroSensor:Reset")
   
+  def _calibrate(self) -> None:
+    if RobotBase.isReal():
+      self._gyro.configCalTime(self._commandCalibrationTime)
+      self._gyro.calibrate()
+
   def calibrateCommand(self) -> Command:
     return cmd.sequence(
       cmd.runOnce(
         lambda: [
           SmartDashboard.putBoolean(f'{self._baseKey}/IsCalibrating', True),
-          self._gyro.configCalTime(self._constants.kCommandCalibrationTime),
           self._calibrate()
         ]
       ),
-      cmd.waitSeconds(self._constants.kCalibrationWaitTime),
+      cmd.waitSeconds(self._commandCalibrationDelay),
       cmd.runOnce(
         lambda: SmartDashboard.putBoolean(f'{self._baseKey}/IsCalibrating', False)
       )
     ).ignoringDisable(True).withName("GyroSensor:Calibrate")
-  
-  def alignRobotToField(self, robotPose: Pose2d) -> None:
-    self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
   
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber(f'{self._baseKey}/Heading', self.getHeading())

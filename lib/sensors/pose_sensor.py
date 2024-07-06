@@ -21,6 +21,7 @@ class PoseSensor:
     self._photonPoseEstimator = PhotonPoseEstimator(aprilTagFieldLayout, poseStrategy, self._photonCamera, cameraTransform)
     self._photonPoseEstimator.multiTagFallbackStrategy = fallbackPoseStrategy
     self._hasTarget = False
+    self._targetCount: int = 0
 
     utils.addRobotPeriodic(self._updateTelemetry)
 
@@ -28,6 +29,7 @@ class PoseSensor:
     if self._photonCamera.isConnected():
       photonPipelineResult = self._photonCamera.getLatestResult()
       self._hasTarget = photonPipelineResult.hasTargets()
+      self._targetCount = len(photonPipelineResult.getTargets()) if self._hasTarget else 0
       return self._photonPoseEstimator.update(photonPipelineResult)
     self._hasTarget = False
     return None
@@ -38,3 +40,4 @@ class PoseSensor:
   def _updateTelemetry(self) -> None:
     SmartDashboard.putBoolean(f'{self._baseKey}/IsConnected', self._photonCamera.isConnected())
     SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())
+    SmartDashboard.putNumber(f'{self._baseKey}/TargetCount', self._targetCount)
