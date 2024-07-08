@@ -50,7 +50,7 @@ class LauncherArmSubsystem(Subsystem):
       lambda: self.clearTargetAlignment()
     ).finallyDo(
       lambda end: self.reset()
-    ).withName("LauncherArmSubsystem:RunLauncherArm")
+    ).withName("LauncherArmSubsystem:DEFAULT:RunLauncherArm")
 
   def alignToPositionCommand(self, position: float) -> Command:
     return self.run(

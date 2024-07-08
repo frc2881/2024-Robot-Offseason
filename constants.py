@@ -190,7 +190,6 @@ class Subsystems:
     ]
 
     kRollerSpeedsTargetThreshold: float = 0.95
-    kLaunchTimeout: units.seconds = 1.0
 
   class Climber:
     kArmLeftMotorCANId: int = 16
@@ -263,6 +262,10 @@ class Sensors:
 _aprilTagFieldLayout = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
 
 class Game:
+  class Commands:
+    kScoringAlignmentTimeout: units.seconds = 0.75
+    kLaunchTimeout: units.seconds = 1.25
+
   class Field:
     kAprilTagFieldLayout = _aprilTagFieldLayout
 
@@ -306,4 +309,3 @@ class Game:
     }
 
     kPickupTimeout: units.seconds = 4.0
-    kAlignmentTimeout: units.seconds = 1.0

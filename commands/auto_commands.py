@@ -36,7 +36,7 @@ class AutoCommands:
       cmd.parallel(
         self.gameCommands.alignRobotToTargetCommand(),
         self.gameCommands.alignLauncherToTargetCommand()
-      ).withTimeout(constants.Game.Auto.kAlignmentTimeout),
+      ).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
       self.gameCommands.runLauncherCommand()
     ).withName("AutoCommands:Score")
   
@@ -44,7 +44,7 @@ class AutoCommands:
     return cmd.sequence(
       self.gameCommands.alignLauncherToPositionCommand(
         constants.Subsystems.Launcher.kArmPositionSubwoofer
-      ).withTimeout(constants.Game.Auto.kAlignmentTimeout),
+      ).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
       self.gameCommands.runLauncherCommand()
     ).withName("AutoCommands:ScoreAtSubwoofer")
   

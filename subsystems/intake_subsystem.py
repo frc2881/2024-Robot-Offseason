@@ -51,7 +51,7 @@ class IntakeSubsystem(Subsystem):
         self._runBottomBelts(MotorDirection.Reverse, self._constants.kBeltsSpeedIntake)
       ]
     ).until(
-      lambda: self._getIntakeTargetDistance() <= self._constants.kIntakeTriggerDistanceRear
+      lambda: utils.isValueInRange(self._getIntakeTargetDistance(), 0, self._constants.kIntakeTriggerDistanceRear)
     ).onlyIf(
       lambda: intakeDirection == IntakeDirection.Rear
     ).andThen(
@@ -74,7 +74,7 @@ class IntakeSubsystem(Subsystem):
           self._runBottomBelts(MotorDirection.Forward, self._constants.kBeltsSpeedIntake)
         ]
       ).until(
-        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIntake
+        lambda: utils.isValueInRange(self._getLauncherTargetDistance(), 0, self._constants.kLauncherTriggerDistanceIntake)
       )
     ).finallyDo(
       lambda end: self.reset()

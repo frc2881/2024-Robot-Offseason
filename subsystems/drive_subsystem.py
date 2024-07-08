@@ -124,7 +124,7 @@ class DriveSubsystem(Subsystem):
       lambda: self._driveWithController(getLeftY(), getLeftX(), getRightX())
     ).onlyIf(
       lambda: self._lockState != DriveLockState.Locked
-    ).withName("DriveSubsystem:DriveWithController")
+    ).withName("DriveSubsystem:DEFAULT:DriveWithController")
 
   def _driveWithController(self, speedX: float, speedY: float, speedRotation: float) -> None:
     if self._driftCorrection == DriveDriftCorrection.Enabled:
