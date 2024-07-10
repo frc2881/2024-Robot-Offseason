@@ -1,13 +1,14 @@
 from ntcore import NetworkTableInstance, PubSubOptions
 from wpilib import SmartDashboard
+from wpimath import units
 from lib import utils, logger
 
 class DistanceSensor:
   def __init__(
       self, 
       sensorName: str,
-      minTargetDistance: float,
-      maxTargetDistance: float
+      minTargetDistance: units.millimeters,
+      maxTargetDistance: units.millimeters
     ) -> None:
     self._sensorName = sensorName
     self._minTargetDistance = minTargetDistance
@@ -19,7 +20,7 @@ class DistanceSensor:
 
     utils.addRobotPeriodic(self._updateTelemetry)
 
-  def getDistance(self) -> float:
+  def getDistance(self) -> units.millimeters:
     return self._valueTopic.get()
 
   def hasTarget(self) -> bool:
@@ -36,4 +37,4 @@ class DistanceSensor:
 
   def _updateTelemetry(self) -> None:
     SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())
-    SmartDashboard.putBoolean(f'{self._baseKey}/IsTriggered', self.isTriggered())
+    SmartDashboard.putBoolean(f'{self._baseKey}/IsTriggered', self._isTriggered)

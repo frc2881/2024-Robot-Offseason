@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from wpimath import units
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from wpilib import SmartDashboard
@@ -13,7 +14,7 @@ class SwerveModule:
       location: SwerveModuleLocation,
       drivingMotorCANId: int,
       turningMotorCANId: int,
-      turningOffset: float,
+      turningOffset: units.radians,
       constants: "constants.Subsystems.Drive.SwerveModule"
     ) -> None:
     self._constants = constants
@@ -21,7 +22,7 @@ class SwerveModule:
     self._turningOffset = turningOffset
     
     self._baseKey = f'Robot/Drive/SwerveModules/{self._location.name}'
-    self._setSpeed: float = 0
+    self._drivingTargetSpeed: units.meters_per_second = 0
 
     self._drivingMotor = CANSparkFlex(drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
     self._drivingEncoder = self._drivingMotor.getEncoder()
@@ -70,7 +71,7 @@ class SwerveModule:
     targetState.speed *= targetState.angle.__sub__(Rotation2d(self._turningEncoder.getPosition())).cos()
     self._drivingPIDController.setReference(targetState.speed, CANSparkBase.ControlType.kVelocity)
     self._turningPIDController.setReference(targetState.angle.radians(), CANSparkBase.ControlType.kPosition)
-    self._setSpeed = targetState.speed
+    self._drivingTargetSpeed = targetState.speed
 
   def getState(self) -> SwerveModuleState:
     return SwerveModuleState(self._drivingEncoder.getVelocity(), Rotation2d(self._turningEncoder.getPosition() - self._turningOffset))
@@ -83,6 +84,6 @@ class SwerveModule:
     self._turningMotor.setIdleMode(idleMode)
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putNumber(f'{self._baseKey}/Driving/Speed/Target', self._setSpeed)
+    SmartDashboard.putNumber(f'{self._baseKey}/Driving/Speed/Target', self._drivingTargetSpeed)
     SmartDashboard.putNumber(f'{self._baseKey}/Driving/Speed/Actual', self._drivingEncoder.getVelocity())
     SmartDashboard.putNumber(f'{self._baseKey}/Turning/AbsolutePosition', self._turningEncoder.getPosition())

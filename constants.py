@@ -18,19 +18,19 @@ class Power:
 class Controllers:
   kDriverControllerPort: int = 0
   kOperatorControllerPort: int = 1
-  kInputDeadband: float = 0.1
+  kInputDeadband: units.percent = 0.1
 
 class Subsystems:
   class Drive:
-    kTrackWidth: float = units.inchesToMeters(24.5)
-    kWheelBase: float = units.inchesToMeters(21.5)
-    kDriveBaseRadius: float = Translation2d().distance(Translation2d(kWheelBase / 2, kTrackWidth / 2))
+    kTrackWidth: units.meters = units.inchesToMeters(24.5)
+    kWheelBase: units.meters = units.inchesToMeters(21.5)
+    kDriveBaseRadius: units.meters = Translation2d().distance(Translation2d(kWheelBase / 2, kTrackWidth / 2))
 
-    kMaxSpeedMetersPerSecond: float = 6.32
-    kMaxAngularSpeed: float = 4 * math.pi
+    kMaxSpeedMetersPerSecond: units.meters_per_second = 6.32
+    kMaxAngularSpeed: units.radians_per_second = 4 * math.pi
 
-    kDriveInputLimiter: float = 0.6
-    kDriveInputRateLimit: float = 0.5
+    kInputLimit: units.percent = 0.6
+    kInputRateLimit: units.percent = 0.5
 
     kDriftCorrectionThetaControllerPIDConstants = PIDConstants(0.01, 0, 0, 0)
     kDriftCorrectionThetaControllerPositionTolerance: float = 0.5
@@ -40,7 +40,7 @@ class Subsystems:
     kTargetAlignmentThetaControllerPositionTolerance: float = 1.0
     kTargetAlignmentThetaControllerVelocityTolerance: float = 1.0
     kTargetAlignmentCarpetFrictionCoeff: float = 0.15
-    kTargetAlignmentHeadingInversion: float = 180.0
+    kTargetAlignmentHeadingInversion: units.degrees = 180.0
 
     kPathFollowerTranslationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
@@ -55,10 +55,10 @@ class Subsystems:
     kSwerveModuleRearRightDrivingMotorCANId: int = 9
     kSwerveModuleRearRightTurningMotorCANId: int = 10
 
-    kSwerveModuleFrontLeftOffset: float = -math.pi / 2
-    kSwerveModuleFrontRightOffset: float = 0
-    kSwerveModuleRearLeftOffset: float = math.pi
-    kSwerveModuleRearRightOffset: float = math.pi / 2
+    kSwerveModuleFrontLeftOffset: units.radians = -math.pi / 2
+    kSwerveModuleFrontRightOffset: units.radians = 0
+    kSwerveModuleRearLeftOffset: units.radians = math.pi
+    kSwerveModuleRearRightOffset: units.radians = math.pi / 2
 
     kSwerveModuleFrontLeftTranslation = Translation2d(kWheelBase / 2, kTrackWidth / 2)
     kSwerveModuleFrontRightTranslation =Translation2d(kWheelBase / 2, -kTrackWidth / 2)
@@ -73,28 +73,28 @@ class Subsystems:
     )
 
     class SwerveModule:
+      kFreeSpeed: units.revolutions_per_minute = 6238.73054766
+      kWheelDiameter: units.meters = units.inchesToMeters(3.0)
+      kWheelCircumference: units.meters = kWheelDiameter * math.pi
       kDrivingMotorPinionTeeth: int = 14
-      kFreeSpeedRpm: float = 6238.73054766
-      kWheelDiameterMeters: float = units.inchesToMeters(3.0)
-      kWheelCircumferenceMeters: float = kWheelDiameterMeters * math.pi
       kDrivingMotorReduction: float = (45.0 * 20) / (kDrivingMotorPinionTeeth * 15)
-      kDrivingMotorFreeSpeedRps: float = kFreeSpeedRpm / 60
-      kDriveWheelFreeSpeedRps: float = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters) / kDrivingMotorReduction 
-      kDrivingEncoderPositionConversionFactor: float = (kWheelDiameterMeters * math.pi) / kDrivingMotorReduction
-      kDrivingEncoderVelocityConversionFactor: float = ((kWheelDiameterMeters * math.pi) / kDrivingMotorReduction) / 60.0
+      kDrivingMotorFreeSpeedRps: float = kFreeSpeed / 60
+      kDriveWheelFreeSpeedRps: float = (kDrivingMotorFreeSpeedRps * kWheelCircumference) / kDrivingMotorReduction 
+      kDrivingEncoderPositionConversionFactor: float = (kWheelDiameter * math.pi) / kDrivingMotorReduction
+      kDrivingEncoderVelocityConversionFactor: float = ((kWheelDiameter * math.pi) / kDrivingMotorReduction) / 60.0
       kTurningEncoderInverted: bool = True
       kTurningEncoderPositionConversionFactor: float = 2 * math.pi
       kTurningEncoderVelocityConversionFactor: float = (2 * math.pi) / 60.0
       kTurningEncoderPositionPIDMinInput: float = 0
       kTurningEncoderPositionPIDMaxInput: float = kTurningEncoderPositionConversionFactor
-      kDrivingMotorCurrentLimit: int = 80
-      kDrivingMotorMaxReverseOutput: float = -1.0
-      kDrivingMotorMaxForwardOutput: float = 1.0
+      kDrivingMotorCurrentLimit: units.amperes = 80
+      kDrivingMotorMaxReverseOutput: units.percent = -1.0
+      kDrivingMotorMaxForwardOutput: units.percent = 1.0
       kDrivingMotorIdleMode = CANSparkBase.IdleMode.kBrake
       kDrivingMotorPIDConstants = PIDConstants(0.04, 0, 0, 1 / kDriveWheelFreeSpeedRps)
-      kTurningMotorCurrentLimit: int = 20
-      kTurningMotorMaxReverseOutput: float = -1.0
-      kTurningMotorMaxForwardOutput: float = 1.0
+      kTurningMotorCurrentLimit: units.amperes = 20
+      kTurningMotorMaxReverseOutput: units.percent = -1.0
+      kTurningMotorMaxForwardOutput: units.percent = 1.0
       kTurningMotorIdleMode = CANSparkBase.IdleMode.kBrake
       kTurningMotorPIDConstants = PIDConstants(1, 0, 0, 0)
  
@@ -103,109 +103,109 @@ class Subsystems:
     kTopRearBeltsMotorCANId: int = 19
     kTopFrontBeltsMotorCANId: int = 20
 
-    kBottomBeltsMotorCurrentLimit: int = 60
-    kBottomBeltsMotorMaxForwardOutput: float = 0.8
-    kBottomBeltsMotorMaxReverseOutput: float = -0.8
+    kBeltsMotorCurrentLimit: units.amperes = 60
+    kBeltsMotorMaxForwardOutput: units.percent = 0.8
+    kBeltsMotorMaxReverseOutput: units.percent = -0.8
+
     kBottomBeltsMotorIdleMode = CANSparkBase.IdleMode.kCoast
+    kTopBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
-    kTopFrontBeltsMotorCurrentLimit: int = 60
-    kTopFrontBeltsMotorMaxForwardOutput: float = 0.8
-    kTopFrontBeltsMotorMaxReverseOutput: float = -0.8
-    kTopFrontBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
+    kBeltsSpeedIntake: units.percent = 0.6
+    kBeltsSpeedAlign: units.percent = 0.3
+    kBeltsSpeedEject: units.percent = 0.6
+    kBeltsSpeedLaunch: units.percent = 0.6
 
-    kTopRearBeltsMotorCurrentLimit: int = 60
-    kTopRearBeltsMotorMaxForwardOutput: float = 0.8
-    kTopRearBeltsMotorMaxReverseOutput: float = -0.8
-    kTopRearBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
-
-    kBeltsSpeedIntake: float = 0.6
-    kBeltsSpeedAlign: float = 0.3
-    kBeltsSpeedEject: float = 0.6
-    kBeltsSpeedLaunch: float = 0.6
-
-    kIntakeTriggerDistanceRear: float = 240.0 
-    kIntakeTriggerDistanceFront: float = 320.0
-    kLauncherTriggerDistanceIntake: float = 40.0
-    kLauncherTriggerDistanceAlign: float = 60.0
-    kLauncherReadyDistanceMin: float = 60.0
-    kLauncherReadyDistanceMax: float = 100.0
+    kIntakeTriggerDistanceRear: units.millimeters = 240.0 
+    kIntakeTriggerDistanceFront: units.millimeters = 320.0
+    kLauncherTriggerDistanceIntake: units.millimeters = 40.0
+    kLauncherTriggerDistanceAlign: units.millimeters = 60.0
+    kLauncherReadyDistanceMin: units.millimeters = 20.0
+    kLauncherReadyDistanceMax: units.millimeters = 120.0
 
     kReloadTimeout: units.seconds = 0.2
 
   class Launcher:
-    kArmMotorCANId: int = 11
-    kBottomRollerMotorCANId: int = 12
-    kTopRollerMotorCANId: int = 13
+    class Arm:
+      kMotorCANId: int = 11
 
-    kArmMotorCurrentLimit: int = 60
-    kArmMotorMaxReverseOutput: float = -1.0
-    kArmMotorMaxForwardOutput: float = 1.0
-    kArmMotorIdleMode = CANSparkBase.IdleMode.kBrake
-    kArmMotorPIDConstants = PIDConstants(0.0003, 0, 0.00015, 1 / 16.8)
-    kArmMotorForwardSoftLimit: float = 12.0
-    kArmMotorReverseSoftLimit: float = 1.0
-    kArmMotorPositionConversionFactor: float = 1.0 / 3.0
-    kArmMotorVelocityConversionFactor: float = kArmMotorPositionConversionFactor / 60.0
-    kArmMotorSmartMotionMaxVelocity: float = (33.0 / kArmMotorPositionConversionFactor) * 60
-    kArmMotorSmartMotionMaxAccel: float = 100.0 / kArmMotorVelocityConversionFactor
+      kMotorCurrentLimit: units.amperes = 60
+      kMotorMaxReverseOutput: units.percent = -1.0
+      kMotorMaxForwardOutput: units.percent = 1.0
+      kMotorIdleMode = CANSparkBase.IdleMode.kBrake
+      kMotorPIDConstants = PIDConstants(0.0003, 0, 0.00015, 1 / 16.8)
+      kMotorForwardSoftLimit: float = 12.0
+      kMotorReverseSoftLimit: float = 1.0
+      kMotorPositionConversionFactor: float = 1.0 / 3.0
+      kMotorVelocityConversionFactor: float = kMotorPositionConversionFactor / 60.0
+      kMotorSmartMotionMaxVelocity: float = (33.0 / kMotorPositionConversionFactor) * 60
+      kMotorSmartMotionMaxAccel: float = 100.0 / kMotorVelocityConversionFactor
 
-    kRollerMotorFreeSpeedRpm: float = 6238.73054766
+      kInputLimit: units.percent = 0.5
+      kResetSpeed: units.percent = 0.2
 
-    kBottomRollerMotorCurrentLimit = 100
-    kBottomRollerMotorMaxForwardOutput: float = 1.0
-    kBottomRollerMotorMaxReverseOutput: float = -1.0
-    kBottomRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
+      kTargetAlignmentPositionTolerance: float = 0.1
 
-    kTopRollerMotorCurrentLimit = 100
-    kTopRollerMotorMaxForwardOutput: float = 1.0
-    kTopRollerMotorMaxReverseOutput: float = -1.0
-    kTopRollerMotorIdleMode = CANSparkBase.IdleMode.kBrake
+      kPositionSubwoofer: float = 10.0
+      kPositionPodium: float = 4.3
+      kPositionAmp: float = 9.50
+      kPositionShuttle: float = 9.50
+      kPositionClimber: float = 1.00
+      kPositionIntake: float = 3.00
 
-    kArmInputLimiter: float = 0.5
-    kArmTargetAlignmentPositionTolerance: float = 0.1
+      kPositionTargets: list[LauncherArmPositionTarget] = [
+        LauncherArmPositionTarget(0.00, 10.50),
+        LauncherArmPositionTarget(1.00, 10.20),
+        LauncherArmPositionTarget(1.25, kPositionSubwoofer),
+        LauncherArmPositionTarget(2.50, 5.60),
+        LauncherArmPositionTarget(2.90, kPositionPodium),
+        LauncherArmPositionTarget(3.45, 3.40),
+        LauncherArmPositionTarget(4.00, 2.80),
+        LauncherArmPositionTarget(4.75, 1.90),
+        LauncherArmPositionTarget(5.15, 1.60),
+        LauncherArmPositionTarget(6.05, 1.40),
+        LauncherArmPositionTarget(7.00, 1.00)
+      ]
 
-    kRollersSpeedsDefault = LauncherRollersSpeeds(0.80, 0.80)
-    kRollersSpeedsAmp = LauncherRollersSpeeds(0.30, 0.35)
-    kRollersSpeedsShuttle = LauncherRollersSpeeds(0.65, 0.65)
+    class Rollers:
+      kBottomMotorCANId: int = 12
+      kTopMotorCANId: int = 13
 
-    kArmPositionSubwoofer: float = 10.0
-    kArmPositionPodium: float = 4.3
-    kArmPositionAmp: float = 9.50
-    kArmPositionShuttle: float = 9.50
-    kArmPositionClimber: float = 1.00
-    kArmPositionIntake: float = 2.00
+      kMotorFreeSpeed: units.revolutions_per_minute = 6238.73054766
 
-    kArmPositionTargets: list[LauncherArmPositionTarget] = [
-      LauncherArmPositionTarget(0.00, 10.50),
-      LauncherArmPositionTarget(1.00, 10.20),
-      LauncherArmPositionTarget(1.25, kArmPositionSubwoofer),
-      LauncherArmPositionTarget(2.50, 5.60),
-      LauncherArmPositionTarget(2.90, kArmPositionPodium),
-      LauncherArmPositionTarget(3.45, 3.40),
-      LauncherArmPositionTarget(4.00, 2.80),
-      LauncherArmPositionTarget(4.75, 1.90),
-      LauncherArmPositionTarget(5.15, 1.60),
-      LauncherArmPositionTarget(6.05, 1.40),
-      LauncherArmPositionTarget(7.00, 1.00)
-    ]
+      kMotorCurrentLimit: units.amperes = 100
+      kMotorMaxForwardOutput: units.percent = 1.0
+      kMotorMaxReverseOutput: units.percent = -1.0
+      kMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
-    kRollerSpeedsTargetThreshold: float = 0.95
+      kSpeedsDefault = LauncherRollersSpeeds(0.80, 0.80)
+      kSpeedsAmp = LauncherRollersSpeeds(0.30, 0.35)
+      kSpeedsShuttle = LauncherRollersSpeeds(0.65, 0.65)
+
+      kLaunchSpeedDeltaMin: units.percent = 0.95
 
   class Climber:
-    kArmLeftMotorCANId: int = 16
-    kArmRightMotorCANId: int = 17
+    class Arm:
+      kLeftMotorCANId: int = 16
+      kRightMotorCANId: int = 17
 
-    kArmMotorCurrentLimit: int = 100
-    kArmMotorMaxReverseOutput: float = -1.0
-    kArmMotorMaxForwardOutput: float = 1.0
-    kArmMotorIdleMode = CANSparkBase.IdleMode.kBrake
-    kArmMotorPIDConstants = PIDConstants(0.05, 0, 0, 0)
-    kArmMotorForwardSoftLimit: float = 33.0
-    kArmMotorReverseSoftLimit: float = 0.0
+      kMotorCurrentLimit: units.amperes = 100
+      kMotorMaxReverseOutput: units.percent = -1.0
+      kMotorMaxForwardOutput: units.percent = 1.0
+      kMotorIdleMode = CANSparkBase.IdleMode.kBrake
+      kMotorPIDConstants = PIDConstants(0.05, 0, 0, 0)
+      kMotorForwardSoftLimit: float = 33.0
+      kMotorReverseSoftLimit: float = 0.0
 
-    kArmPositionDefault: float = 8.2
+      kInputLimit: units.percent = 0.5
+      kResetSpeed: units.percent = 0.2
 
-    kBrakeServoChannel: int = 9
+      kPositionDefault: float = 8.2
+
+    class Brake:
+      kServoChannel: int = 9
+
+      kPositionUnlocked: float = 1.0
+      kPositionLocked: float = 0
 
 class Sensors:
   class Gyro:
@@ -239,21 +239,21 @@ class Sensors:
     kFallbackPoseStrategy = PoseStrategy.LOWEST_AMBIGUITY
     kVisionSingleTagStandardDeviations: tuple[float, ...] = [1.0, 1.0, 2.0]
     kVisionMultiTagStandardDeviations: tuple[float, ...] = [0.5, 0.5, 1.0]
-    kVisionMaxPoseAmbiguity: float = 0.2
+    kVisionMaxPoseAmbiguity: units.percent = 0.2
 
   class Distance:
     class Intake:
       kSensorName = "Intake"
-      kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 320
+      kMinTargetDistance: units.millimeters = 0
+      kMaxTargetDistance: units.millimeters = 320
     class Launcher:
       kSensorName = "Launcher"
-      kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 320
+      kMinTargetDistance: units.millimeters = 0
+      kMaxTargetDistance: units.millimeters = 320
     class Climber:
       kSensorName = "Climber"
-      kMinTargetDistance: float = 0
-      kMaxTargetDistance: float = 240
+      kMinTargetDistance: units.millimeters = 0
+      kMaxTargetDistance: units.millimeters = 240
 
   class Object:
     kCameraName = "Front"
@@ -268,6 +268,7 @@ class Game:
 
   class Field:
     kAprilTagFieldLayout = _aprilTagFieldLayout
+    kBounds = (Translation2d(0, 0), Translation2d(kAprilTagFieldLayout.getFieldLength(), kAprilTagFieldLayout.getFieldWidth()))
 
     class Targets:  
       kBlueSpeaker = _aprilTagFieldLayout.getTagPose(7) or Pose3d()

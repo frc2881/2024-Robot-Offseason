@@ -1,5 +1,7 @@
 from enum import Enum, auto
 from dataclasses import dataclass
+from wpimath import units
+from lib.classes import MotorDirection
 
 class AutoPath(Enum):
   Test = auto()
@@ -38,10 +40,10 @@ class IntakeDirection(Enum):
 
 @dataclass(frozen=True)
 class LauncherArmPositionTarget:
-  distance: float
+  distance: units.meters
   position: float
 
 @dataclass(frozen=True)
 class LauncherRollersSpeeds:
-  top: float
-  bottom: float
+  top: units.percent
+  bottom: units.percent

@@ -29,4 +29,4 @@ class BeamBreakSensor:
 
   def _updateTelemetry(self) -> None:
     SmartDashboard.putBoolean(f'{self._baseKey}/HasTarget', self.hasTarget())
-    SmartDashboard.putBoolean(f'{self._baseKey}/IsTriggered', self.isTriggered())
+    SmartDashboard.putBoolean(f'{self._baseKey}/IsTriggered', self._isTriggered)

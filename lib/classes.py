@@ -1,5 +1,7 @@
 from enum import Enum, auto
 from dataclasses import dataclass
+import math
+from wpimath import units
 
 class Alliance(Enum):
   Red = 0
@@ -17,7 +19,6 @@ class RobotState(Enum):
   EStopped = auto()
 
 class MotorDirection(Enum):
-  Stopped = auto()
   Forward = auto()
   Reverse = auto()
 
@@ -58,3 +59,9 @@ class PIDConstants:
   I: float
   D: float
   FF: float
+
+@dataclass
+class TargetInfo:
+  distance: units.meters
+  heading: units.degrees
+  pitch: units.degrees

@@ -1,11 +1,12 @@
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Tuple, TypeVar
 import math
 import numpy
 import json
 import time
 import wpilib
 import wpimath
-from wpimath.geometry import Pose3d, Rotation2d
+from wpimath import units
+from wpimath.geometry import Pose2d, Translation2d
 from wpilib import DriverStation
 from rev import CANSparkBase, REVLibError
 from lib import logger
@@ -14,7 +15,7 @@ import robot
 
 T = TypeVar("T")
 
-def addRobotPeriodic(callback: Callable[[], None], period: float = 0.02, offset: float = 0) -> None:
+def addRobotPeriodic(callback: Callable[[], None], period: units.seconds = 0.02, offset: units.seconds = 0) -> None:
   robot.Robot.getInstance().addPeriodic(callback, period, offset)
 
 def getRobotState() -> RobotState:
@@ -50,32 +51,21 @@ def getAlliance() -> Alliance:
 def getValueForAlliance(blueValue: T, redValue: T) -> T:
   return blueValue if getAlliance() == Alliance.Blue else redValue
 
-def getMatchTime() -> float:
+def getMatchTime() -> units.seconds:
   return DriverStation.getMatchTime()
 
 def isValueInRange(value: float, minValue: float, maxValue: float) -> bool:
   return value >= minValue and value <= maxValue
 
-def squareControllerInput(input: float, deadband: float) -> float:
-  deadbandInput: float = wpimath.applyDeadband(input, deadband)
+def squareControllerInput(input: units.percent, deadband: units.percent) -> units.percent:
+  deadbandInput: units.percent = wpimath.applyDeadband(input, deadband)
   return math.copysign(deadbandInput * deadbandInput, input)
 
-def convertVoltsToPsi(sensorVoltage: float, supplyVoltage: float) -> float:
-  return 250 * (sensorVoltage / supplyVoltage) - 25
-
-def wrapAngle(angle: float) -> float:
+def wrapAngle(angle: units.degrees) -> units.degrees:
   return wpimath.inputModulus(angle, -180, 180)
 
-def getDistanceToPose(robotPose: Pose3d, targetPose: Pose3d) -> float:
-  return robotPose.toPose2d().translation().distance(targetPose.toPose2d().translation())
-
-def getHeadingToPose(robotPose: Pose3d, targetPose: Pose3d) -> float:
-  translation = targetPose.toPose2d().relativeTo(robotPose.toPose2d()).translation()
-  rotation = Rotation2d(translation.X(), translation.Y()).rotateBy(robotPose.toPose2d().rotation())
-  return wrapAngle(rotation.degrees())
-
-def getPitchToPose(robotPose: Pose3d, targetPose: Pose3d) -> float:
-  return math.degrees(math.atan2((targetPose - robotPose).Z(), getDistanceToPose(robotPose, targetPose)))
+def isPoseInBounds(pose: Pose2d, bounds: Tuple[Translation2d, Translation2d]) -> bool:
+  return isValueInRange(pose.X(), bounds[0].X(), bounds[1].X()) and isValueInRange(pose.Y(), bounds[0].Y(), bounds[1].Y())
 
 def getInterpolatedValue(x: float, xs: list[float], ys: list[float]) -> float:
   try:

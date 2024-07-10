@@ -1,7 +1,8 @@
 import math
+from wpimath import units
+from wpilib import XboxController
 from commands2 import Command, cmd
 from commands2.button import CommandXboxController, Trigger
-from wpilib import XboxController
 from lib import utils
 from lib.classes import ControllerRumblePattern
 
@@ -9,30 +10,30 @@ class GameController(CommandXboxController):
   def __init__(
       self, 
       port: int, 
-      inputDeadband: float
+      inputDeadband: units.percent
     ) -> None:
     super().__init__(port)
     self._inputDeadband = inputDeadband
 
-  def getLeftY(self) -> float:
+  def getLeftY(self) -> units.percent:
     return utils.squareControllerInput(-super().getLeftY(), self._inputDeadband)
   
   def leftY(self) -> Trigger:
     return Trigger(lambda: math.fabs(super().getLeftY()) > self._inputDeadband)
   
-  def getLeftX(self) -> float:
+  def getLeftX(self) -> units.percent:
     return utils.squareControllerInput(-super().getLeftX(), self._inputDeadband)
   
   def leftX(self) -> Trigger:
     return Trigger(lambda: math.fabs(super().getLeftX()) > self._inputDeadband)
   
-  def getRightY(self) -> float:
+  def getRightY(self) -> units.percent:
     return utils.squareControllerInput(-super().getRightY(), self._inputDeadband)
   
   def rightY(self) -> Trigger:
     return Trigger(lambda: math.fabs(super().getRightY()) > self._inputDeadband)
   
-  def getRightX(self) -> float:
+  def getRightX(self) -> units.percent:
     return utils.squareControllerInput(-super().getRightX(), self._inputDeadband)
   
   def rightX(self) -> Trigger:

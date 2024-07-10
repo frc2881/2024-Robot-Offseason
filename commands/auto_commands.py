@@ -43,7 +43,7 @@ class AutoCommands:
   def _scoreAtSubwoofer(self) -> Command:
     return cmd.sequence(
       self.gameCommands.alignLauncherToPositionCommand(
-        constants.Subsystems.Launcher.kArmPositionSubwoofer
+        constants.Subsystems.Launcher.Arm.kPositionSubwoofer
       ).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
       self.gameCommands.runLauncherCommand()
     ).withName("AutoCommands:ScoreAtSubwoofer")

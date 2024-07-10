@@ -1,11 +1,12 @@
 from typing import Callable
 import math
-from commands2 import Subsystem, Command
 from wpilib import SmartDashboard, SendableChooser
+from wpimath import units
 from wpimath.controller import PIDController
 from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
+from commands2 import Subsystem, Command
 from rev import CANSparkBase
 from lib import utils, logger
 from lib.classes import SwerveModuleLocation, DriveSpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
@@ -15,10 +16,10 @@ import constants
 class DriveSubsystem(Subsystem):
   def __init__(
       self, 
-      getGyroHeading: Callable[[], float]
+      getGyroHeading: Callable[[], units.degrees]
     ) -> None:
     super().__init__()
-    self._getGyroHeading: Callable[[], float] = getGyroHeading
+    self._getGyroHeading = getGyroHeading
     
     self._constants = constants.Subsystems.Drive
 
@@ -78,30 +79,30 @@ class DriveSubsystem(Subsystem):
       self._constants.kTargetAlignmentThetaControllerVelocityTolerance
     )
 
-    self._driveInputXFilter = SlewRateLimiter(self._constants.kDriveInputRateLimit)
-    self._driveInputYFilter = SlewRateLimiter(self._constants.kDriveInputRateLimit)
-    self._driveInputRotFilter = SlewRateLimiter(self._constants.kDriveInputRateLimit)
+    self._inputXFilter = SlewRateLimiter(self._constants.kInputRateLimit)
+    self._inputYFilter = SlewRateLimiter(self._constants.kInputRateLimit)
+    self._inputRotationFilter = SlewRateLimiter(self._constants.kInputRateLimit)
 
     self._speedMode: DriveSpeedMode = DriveSpeedMode.Competition
-    driveSpeedModeChooser = SendableChooser()
-    driveSpeedModeChooser.setDefaultOption(DriveSpeedMode.Competition.name, DriveSpeedMode.Competition)
-    driveSpeedModeChooser.addOption(DriveSpeedMode.Training.name, DriveSpeedMode.Training)
-    driveSpeedModeChooser.onChange(lambda speedMode: setattr(self, "_speedMode", speedMode))
-    SmartDashboard.putData("Robot/Drive/SpeedMode", driveSpeedModeChooser)
+    speedModeChooser = SendableChooser()
+    speedModeChooser.setDefaultOption(DriveSpeedMode.Competition.name, DriveSpeedMode.Competition)
+    speedModeChooser.addOption(DriveSpeedMode.Training.name, DriveSpeedMode.Training)
+    speedModeChooser.onChange(lambda speedMode: setattr(self, "_speedMode", speedMode))
+    SmartDashboard.putData("Robot/Drive/SpeedMode", speedModeChooser)
 
     self._orientation: DriveOrientation = DriveOrientation.Field
-    driveOrientationChooser = SendableChooser()
-    driveOrientationChooser.setDefaultOption(DriveOrientation.Field.name, DriveOrientation.Field)
-    driveOrientationChooser.addOption(DriveOrientation.Robot.name, DriveOrientation.Robot)
-    driveOrientationChooser.onChange(lambda orientation: setattr(self, "_orientation", orientation))
-    SmartDashboard.putData("Robot/Drive/Orientation", driveOrientationChooser)
+    orientationChooser = SendableChooser()
+    orientationChooser.setDefaultOption(DriveOrientation.Field.name, DriveOrientation.Field)
+    orientationChooser.addOption(DriveOrientation.Robot.name, DriveOrientation.Robot)
+    orientationChooser.onChange(lambda orientation: setattr(self, "_orientation", orientation))
+    SmartDashboard.putData("Robot/Drive/Orientation", orientationChooser)
 
     self._driftCorrection: DriveDriftCorrection = DriveDriftCorrection.Enabled
-    driveDriftCorrectionChooser = SendableChooser()
-    driveDriftCorrectionChooser.setDefaultOption(DriveDriftCorrection.Enabled.name, DriveDriftCorrection.Enabled)
-    driveDriftCorrectionChooser.addOption(DriveDriftCorrection.Disabled.name, DriveDriftCorrection.Disabled)
-    driveDriftCorrectionChooser.onChange(lambda driftCorrection: setattr(self, "_driftCorrection", driftCorrection))
-    SmartDashboard.putData("Robot/Drive/DriftCorrection", driveDriftCorrectionChooser)
+    driftCorrectionChooser = SendableChooser()
+    driftCorrectionChooser.setDefaultOption(DriveDriftCorrection.Enabled.name, DriveDriftCorrection.Enabled)
+    driftCorrectionChooser.addOption(DriveDriftCorrection.Disabled.name, DriveDriftCorrection.Disabled)
+    driftCorrectionChooser.onChange(lambda driftCorrection: setattr(self, "_driftCorrection", driftCorrection))
+    SmartDashboard.putData("Robot/Drive/DriftCorrection", driftCorrectionChooser)
 
     idleModeChooser = SendableChooser()
     idleModeChooser.setDefaultOption(CANSparkBase.IdleMode.kBrake.name.lstrip("k"), CANSparkBase.IdleMode.kBrake)
@@ -114,22 +115,22 @@ class DriveSubsystem(Subsystem):
   def periodic(self) -> None:
     self._updateTelemetry()
 
-  def driveWithControllerCommand(
+  def driveCommand(
       self, 
-      getLeftY: Callable[[], float], 
-      getLeftX: Callable[[], float], 
-      getRightX: Callable[[], float]
+      getInputX: Callable[[], units.percent], 
+      getInputY: Callable[[], units.percent], 
+      getInputRotation: Callable[[], units.percent]
     ) -> Command:
     return self.run(
-      lambda: self._driveWithController(getLeftY(), getLeftX(), getRightX())
+      lambda: self._drive(getInputX(), getInputY(), getInputRotation())
     ).onlyIf(
       lambda: self._lockState != DriveLockState.Locked
-    ).withName("DriveSubsystem:DEFAULT:DriveWithController")
+    ).withName("DriveSubsystem:Drive")
 
-  def _driveWithController(self, speedX: float, speedY: float, speedRotation: float) -> None:
+  def _drive(self, inputX: units.percent, inputY: units.percent, inputRotation: units.percent) -> None:
     if self._driftCorrection == DriveDriftCorrection.Enabled:
-      isTranslating: bool = speedX != 0 or speedY != 0
-      isRotating: bool = speedRotation != 0
+      isTranslating: bool = inputX != 0 or inputY != 0
+      isRotating: bool = inputRotation != 0
       if isTranslating and not isRotating and not self._isDriftCorrectionActive:
         self._isDriftCorrectionActive = True
         self._driftCorrectionThetaController.reset()
@@ -137,25 +138,23 @@ class DriveSubsystem(Subsystem):
       elif isRotating or not isTranslating:
         self._isDriftCorrectionActive = False
       if self._isDriftCorrectionActive:
-        speedRotation: float = self._driftCorrectionThetaController.calculate(self._getGyroHeading())
+        inputRotation = self._driftCorrectionThetaController.calculate(self._getGyroHeading())
         if self._driftCorrectionThetaController.atSetpoint():
-          speedRotation = 0
+          inputRotation = 0
 
     if self._speedMode == DriveSpeedMode.Training:
-      speedX: float = self._driveInputXFilter.calculate(speedX * self._constants.kDriveInputLimiter)
-      speedY: float = self._driveInputYFilter.calculate(speedY * self._constants.kDriveInputLimiter)
-      speedRotation: float = self._driveInputRotFilter.calculate(speedRotation * self._constants.kDriveInputLimiter)
+      inputX = self._inputXFilter.calculate(inputX * self._constants.kInputLimit)
+      inputY = self._inputYFilter.calculate(inputY * self._constants.kInputLimit)
+      inputRotation = self._inputRotationFilter.calculate(inputRotation * self._constants.kInputLimit)
 
-    self._drive(speedX, speedY, speedRotation)      
-
-  def _drive(self, speedX: float, speedY: float, speedRotation: float) -> None:
-    speedX *= self._constants.kMaxSpeedMetersPerSecond
-    speedY *= self._constants.kMaxSpeedMetersPerSecond
-    speedRotation *= self._constants.kMaxAngularSpeed
+    speedX: units.meters_per_second = inputX * self._constants.kMaxSpeedMetersPerSecond
+    speedY: units.meters_per_second = inputY * self._constants.kMaxSpeedMetersPerSecond
+    speedRotation: units.radians_per_second = inputRotation * self._constants.kMaxAngularSpeed
+    
     if self._orientation == DriveOrientation.Field:
       self.drive(ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, speedRotation, Rotation2d.fromDegrees(self._getGyroHeading())))
     else:
-      self.drive(ChassisSpeeds(speedX, speedY, speedRotation))
+      self.drive(ChassisSpeeds(speedX, speedY, speedRotation))      
 
   def drive(self, chassisSpeeds: ChassisSpeeds) -> None:
     self._setSwerveModuleStates(
@@ -191,7 +190,7 @@ class DriveSubsystem(Subsystem):
       self._swerveModuleRearRight.getState()
     )
   
-  def _setIdleMode(self, idleMode: CANSparkBase.IdleMode):
+  def _setIdleMode(self, idleMode: CANSparkBase.IdleMode) -> None:
     self._swerveModuleFrontLeft.setIdleMode(idleMode)
     self._swerveModuleFrontRight.setIdleMode(idleMode)
     self._swerveModuleRearLeft.setIdleMode(idleMode)
@@ -212,7 +211,7 @@ class DriveSubsystem(Subsystem):
       self._swerveModuleRearLeft.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
       self._swerveModuleRearRight.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
 
-  def alignToTargetCommand(self, getRobotPose: Callable[[], Pose2d], getTargetHeading: Callable[[], float]) -> Command:
+  def alignToTargetCommand(self, getRobotPose: Callable[[], Pose2d], getTargetHeading: Callable[[], units.degrees]) -> Command:
     return self.run(
       lambda: self._alignToTarget(getRobotPose().rotation().degrees())
     ).beforeStarting(
@@ -227,8 +226,8 @@ class DriveSubsystem(Subsystem):
       lambda: self._isAlignedToTarget
     ).withName("DriveSubsystem:AlignToTarget")
 
-  def _alignToTarget(self, robotHeading: float) -> None:
-    speedRotation: float = self._targetAlignmentThetaController.calculate(robotHeading)
+  def _alignToTarget(self, robotHeading: units.degrees) -> None:
+    speedRotation = self._targetAlignmentThetaController.calculate(robotHeading)
     speedRotation += math.copysign(self._constants.kTargetAlignmentCarpetFrictionCoeff, speedRotation)
     if self._targetAlignmentThetaController.atSetpoint():
       speedRotation = 0
@@ -247,7 +246,8 @@ class DriveSubsystem(Subsystem):
 
   def reset(self) -> None:
     self._setIdleMode(CANSparkBase.IdleMode.kBrake)
-    self._drive(0, 0, 0)
+    self.drive(ChassisSpeeds())
+    self.clearTargetAlignment()
   
   def _updateTelemetry(self) -> None:
     SmartDashboard.putString("Robot/Drive/LockState", self._lockState.name)

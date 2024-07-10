@@ -29,25 +29,25 @@ class GyroSensor_ADIS16470():
 
     utils.addRobotPeriodic(self._updateTelemetry)
 
-  def getHeading(self) -> float:
+  def getHeading(self) -> units.degrees:
     return utils.wrapAngle(self._gyro.getAngle())
   
   def getRotation(self) -> Rotation2d:
     return Rotation2d.fromDegrees(self.getHeading())
   
-  def getPitch(self) -> float:
+  def getPitch(self) -> units.degrees:
     return utils.wrapAngle(self._gyro.getAngle(self._gyro.getPitchAxis()))
   
-  def getRoll(self) -> float:
+  def getRoll(self) -> units.degrees:
     return utils.wrapAngle(self._gyro.getAngle(self._gyro.getRollAxis()))
   
-  def getTurnRate(self) -> float:
+  def getTurnRate(self) -> units.degrees_per_second:
     return self._gyro.getRate()
   
   def alignRobotToField(self, robotPose: Pose2d) -> None:
     self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
 
-  def _reset(self, heading: float) -> None:
+  def _reset(self, heading: units.degrees) -> None:
     self._gyro.reset()
     self._gyro.setGyroAngle(self._gyro.getYawAxis(), heading)
 
