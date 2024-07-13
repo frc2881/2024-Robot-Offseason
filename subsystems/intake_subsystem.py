@@ -48,7 +48,7 @@ class IntakeSubsystem(Subsystem):
     return self.run(
       lambda: self._runBelts(MotorDirection.Reverse, MotorDirection.Forward, MotorDirection.Forward, self._constants.kBeltsSpeedIntake)
     ).until(
-      lambda: utils.isValueInRange(self._getIntakeTargetDistance(), 0, self._constants.kIntakeTriggerDistanceRear)
+      lambda: self._getIntakeTargetDistance() <= self._constants.kIntakeTriggerDistanceRear
     ).onlyIf(
       lambda: intakeDirection == IntakeDirection.Rear
     ).andThen(
@@ -63,7 +63,7 @@ class IntakeSubsystem(Subsystem):
       self.run(
         lambda: self._runBelts(MotorDirection.Forward, MotorDirection.Reverse, MotorDirection.Forward, self._constants.kBeltsSpeedIntake)
       ).until(
-        lambda: utils.isValueInRange(self._getLauncherTargetDistance(), 0, self._constants.kLauncherTriggerDistanceIntake)
+        lambda: self._getLauncherTargetDistance() <= self._constants.kLauncherTriggerDistanceIntake
       )
     ).finallyDo(
       lambda end: self.reset()
@@ -98,7 +98,7 @@ class IntakeSubsystem(Subsystem):
     self._topRearBeltsMotor.set(self._getBeltsSpeed(speed, topRear))
 
   def _getBeltsSpeed(self, speed: units.percent, motorDirection: MotorDirection) -> units.percent:
-    return speed * self._constants.kBeltsMotorMaxReverseOutput if motorDirection == MotorDirection.Reverse else self._constants.kBeltsMotorMaxForwardOutput
+    return speed * (self._constants.kBeltsMotorMaxReverseOutput if motorDirection == MotorDirection.Reverse else self._constants.kBeltsMotorMaxForwardOutput)
 
   def isLaunchReady(self) -> bool:
     return utils.isValueInRange(self._getLauncherTargetDistance(), self._constants.kLauncherReadyDistanceMin, self._constants.kLauncherReadyDistanceMax)

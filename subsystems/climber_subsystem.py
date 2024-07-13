@@ -48,14 +48,16 @@ class ClimberSubsystem(Subsystem):
     self._updateTelemetry()
 
   def moveArmUpCommand(self) -> Command:
-    return self.startEnd(
-      lambda: self._armLeftMotor.set(self._constants.Arm.kInputLimit),
+    return self.run(
+      lambda: self._armLeftMotor.set(self._constants.Arm.kInputLimit)
+    ).finallyDo(
       lambda: self._armLeftMotor.set(0)
     ).withName("ClimberSubsystem:MoveArmUp")
   
   def moveArmDownCommand(self) -> Command:
-    return self.startEnd(
-      lambda: self._armLeftMotor.set(-self._constants.Arm.kInputLimit),
+    return self.run(
+      lambda: self._armLeftMotor.set(-self._constants.Arm.kInputLimit)
+    ).finallyDo(
       lambda: self._armLeftMotor.set(0)
     ).withName("ClimberSubsystem:MoveArmDown")
 

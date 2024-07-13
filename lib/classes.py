@@ -22,6 +22,10 @@ class MotorDirection(Enum):
   Forward = auto()
   Reverse = auto()
 
+class MotorIdleMode(Enum):
+  Brake = auto()
+  Coast = auto()
+
 class SwerveModuleLocation(Enum):
   FrontLeft = auto()
   FrontRight = auto()

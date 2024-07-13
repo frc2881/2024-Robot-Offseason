@@ -23,7 +23,7 @@ def start() -> None:
   log("********** Robot Started **********")
 
 def log(message: str) -> None:
-  DataLogManager.log(f'[{Timer.getFPGATimestamp()}] {message}')
+  DataLogManager.log(f'[{"%.6f" % Timer.getFPGATimestamp()}] {message}')
 
 def mode(mode: RobotMode) -> None:
   log(f'>>>>>>>>>> Robot Mode Changed: {mode.name} <<<<<<<<<<')

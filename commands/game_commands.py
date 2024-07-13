@@ -49,26 +49,35 @@ class GameCommands:
     ).withName("GameCommands:AlignRobotToTarget")
 
   def alignLauncherToTargetCommand(self) -> Command:
-    return cmd.parallel(
+    return cmd.sequence(
       self.robot.intakeSubsystem.alignCommand(),
-      self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
-      self.robot.launcherRollersSubsystem.runCommand(constants.Subsystems.Launcher.Rollers.kSpeedsDefault)
+      cmd.parallel(
+        self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
+        self.robot.launcherRollersSubsystem.runCommand(constants.Subsystems.Launcher.Rollers.kSpeedsDefault)
+      )
     ).withName("GameCommands:AlignLauncherToTarget")
 
   def alignLauncherToPositionCommand(self, position: float, launcherRollerSpeeds = constants.Subsystems.Launcher.Rollers.kSpeedsDefault) -> Command:
-    return cmd.parallel(
+    return cmd.sequence(
       self.robot.intakeSubsystem.alignCommand(),
-      self.robot.launcherArmSubsystem.alignToPositionCommand(position),
-      self.robot.launcherRollersSubsystem.runCommand(launcherRollerSpeeds)
+      cmd.parallel(
+        self.robot.launcherArmSubsystem.alignToPositionCommand(position),
+        self.robot.launcherRollersSubsystem.runCommand(launcherRollerSpeeds)
+      )
     ).withName("GameCommands:AlignLauncherToPosition")
   
-  def runLauncherCommand(self, launcherRollerSpeeds = constants.Subsystems.Launcher.Rollers.kSpeedsDefault) -> Command:
+  def runLauncherCommand(self, launcherRollerSpeeds = constants.Subsystems.Launcher.Rollers.kSpeedsDefault, position: float = 0) -> Command:
     return cmd.parallel(
       self.robot.launcherRollersSubsystem.runCommand(launcherRollerSpeeds),
+      cmd.either(
+        self.robot.launcherArmSubsystem.alignToPositionCommand(position),
+        self.robot.launcherArmSubsystem.alignToTargetCommand(lambda: self.robot.localizationSubsystem.getTargetDistance()),
+        lambda: position > 0
+      ),
       cmd.sequence(
         cmd.waitUntil(
           lambda: self.robot.launcherRollersSubsystem.isLaunchReady()
-        ).withTimeout(constants.Game.Commands.kLaunchTimeout),
+        ).withTimeout(constants.Game.Commands.kScoringLaunchTimeout),
         self.robot.intakeSubsystem.launchCommand()
       )
     ).onlyIf(
@@ -88,9 +97,18 @@ class GameCommands:
   
   def launchAtPositionCommand(self, position: float, launcherRollerSpeeds = constants.Subsystems.Launcher.Rollers.kSpeedsDefault) -> Command:
     return cmd.sequence(
-      self.alignLauncherToPositionCommand(position).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
-      self.runLauncherCommand(launcherRollerSpeeds)
+      self.alignLauncherToPositionCommand(position, launcherRollerSpeeds).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
+      self.runLauncherCommand(launcherRollerSpeeds, position)
     ).withName("GameCommands:LaunchAtPosition")
+  
+  def scoreToTargetCommand(self) -> Command:
+    return cmd.sequence(
+      cmd.parallel(
+        self.alignRobotToTargetCommand(),
+        self.alignLauncherToTargetCommand()
+      ).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
+      self.runLauncherCommand()
+    ).withName("GameCommands:ScoreToTarget")
 
   def runClimberSetupCommand(self) -> Command:
     return cmd.sequence(

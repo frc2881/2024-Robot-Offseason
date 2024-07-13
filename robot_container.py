@@ -126,14 +126,17 @@ class RobotContainer:
         lambda: self.driverController.getRightX()
       )
     )
+
     self.driverController.rightTrigger().and_(
-      self.driverController.rightStick().or_(self.driverController.leftBumper()).or_(self.driverController.a()).or_(self.driverController.b()).negate()
-    ).whileTrue(
-      self.gameCommands.runIntakeCommand(IntakeDirection.Front)
-    )
+      (self.driverController.rightStick().or_(
+        self.driverController.leftBumper()).or_(
+          self.driverController.a()).or_(
+            self.driverController.b())
+      ).negate()
+    ).whileTrue(self.gameCommands.runIntakeCommand(IntakeDirection.Front))
     self.driverController.leftTrigger().whileTrue(self.gameCommands.runIntakeCommand(IntakeDirection.Rear))
     self.driverController.rightBumper().whileTrue(self.gameCommands.ejectIntakeCommand())
-    self.driverController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle))
+    self.driverController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle, constants.Subsystems.Launcher.Rollers.kSpeedsShuttle))
     self.driverController.leftBumper().and_(self.driverController.rightTrigger()).whileTrue(
       self.gameCommands.launchAtPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle, constants.Subsystems.Launcher.Rollers.kSpeedsShuttle)
     )
@@ -144,7 +147,7 @@ class RobotContainer:
     # self.driverController.povDown().whileTrue(cmd.none())
     self.driverController.povLeft().whileTrue(self.climberSubsystem.unlockArmCommand())
     # self.driverController.povRight().whileTrue(cmd.none())
-    self.driverController.a().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp))
+    self.driverController.a().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp, constants.Subsystems.Launcher.Rollers.kSpeedsAmp))
     self.driverController.a().and_(self.driverController.rightTrigger()).whileTrue(
       self.gameCommands.launchAtPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp, constants.Subsystems.Launcher.Rollers.kSpeedsAmp)
     )
@@ -163,9 +166,9 @@ class RobotContainer:
         lambda: self.operatorController.getLeftY()
       )
     )
-    self.operatorController.rightTrigger().and_(self.operatorController.leftTrigger()).whileTrue(self.gameCommands.runLauncherCommand())
+    self.operatorController.rightTrigger().and_(self.operatorController.leftTrigger().or_(self.operatorController.povUp()).or_(self.operatorController.povDown())).whileTrue(self.gameCommands.runLauncherCommand())
     self.operatorController.leftTrigger().whileTrue(self.gameCommands.alignLauncherToTargetCommand())
-    self.operatorController.rightBumper().and_(self.operatorController.leftBumper()).whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.Rollers.kSpeedsAmp))
+    self.operatorController.rightBumper().and_(self.operatorController.leftBumper()).whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.Rollers.kSpeedsAmp, constants.Subsystems.Launcher.Arm.kPositionAmp))
     self.operatorController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp, constants.Subsystems.Launcher.Rollers.kSpeedsAmp))
     # self.operatorController.rightStick().whileTrue(cmd.none())
     # self.operatorController.leftStick().whileTrue(cmd.none())
@@ -282,23 +285,26 @@ class RobotContainer:
     self.launcherRollersSubsystem.reset()
     self.climberSubsystem.reset()
 
+  def _robotHasInitialZeroResets(self) -> bool:
+    return utils.isCompetitionMode() or (self.launcherArmSubsystem.hasInitialZeroReset() and self.climberSubsystem.hasInitialZeroReset())
+
   def _updateLights(self) -> None:
     lightsMode = LightsMode.Default
-    if self.launcherDistanceSensor.hasTarget() or self.intakeDistanceSensor.hasTarget():
-      lightsMode = LightsMode.IntakeNotReady
-      if self.intakeSubsystem.isLaunchReady():
-        lightsMode = LightsMode.IntakeReady
-        if utils.getRobotState() == RobotState.Disabled:
-          if not self.localizationSubsystem.hasVisionTargets():
-            lightsMode = LightsMode.VisionNotReady
-        else:
-          if self.driveSubsystem.isAlignedToTarget() and self.launcherArmSubsystem.isAlignedToTarget():
-            lightsMode = LightsMode.LaunchReady
+    if utils.getRobotState() == RobotState.Enabled and not self._robotHasInitialZeroResets():
+      lightsMode = LightsMode.RobotNotReady
+    else: 
+      if self.launcherDistanceSensor.hasTarget() or self.intakeDistanceSensor.hasTarget():
+        lightsMode = LightsMode.IntakeNotReady
+        if self.intakeSubsystem.isLaunchReady():
+          lightsMode = LightsMode.IntakeReady
+          if utils.getRobotState() == RobotState.Disabled:
+            if not self.localizationSubsystem.hasVisionTargets():
+              lightsMode = LightsMode.VisionNotReady
+          else:
+            if self.driveSubsystem.isAlignedToTarget() and self.launcherArmSubsystem.isAlignedToTarget():
+              lightsMode = LightsMode.LaunchReady
     self.lightsController.setLightsMode(lightsMode)
 
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber("Robot/Power/TotalCurrent", self.powerDistribution.getTotalCurrent())
-    SmartDashboard.putBoolean(
-      "Robot/HasInitialZeroResets", 
-      (self.launcherArmSubsystem.hasInitialZeroReset() and self.climberSubsystem.hasInitialZeroReset()) or utils.isCompetitionMode()
-    )
+    SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())

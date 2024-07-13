@@ -72,8 +72,6 @@ class LauncherArmSubsystem(Subsystem):
         self._armPIDController.setReference(position, CANSparkBase.ControlType.kSmartMotion),
         self._setIsAlignedToTarget(position)
       ]
-    ).until(
-      lambda: self.isAlignedToTarget() and utils.isAutonomousMode()
     ).beforeStarting(
       lambda: self.clearTargetAlignment()
     ).finallyDo(
@@ -100,7 +98,7 @@ class LauncherArmSubsystem(Subsystem):
     return self.startEnd(
       lambda: [
         utils.enableSoftLimits(self._armMotor, False),
-        self._armMotor.set(self._constants.kResetSpeed)
+        self._armMotor.set(-self._constants.kResetSpeed)
       ],
       lambda: [
         self._armEncoder.setPosition(0),

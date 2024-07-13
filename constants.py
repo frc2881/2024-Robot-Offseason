@@ -9,7 +9,7 @@ from photonlibpy.photonPoseEstimator import PoseStrategy
 from extras.pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from extras.pathplannerlib.pathfinding import PathConstraints
 from extras.pathplannerlib.path import PathPlannerPath
-from lib.classes import PIDConstants
+from lib.classes import PIDConstants, MotorIdleMode
 from classes import AutoPath, LauncherRollersSpeeds, LauncherArmPositionTarget
 
 class Power:
@@ -55,10 +55,10 @@ class Subsystems:
     kSwerveModuleRearRightDrivingMotorCANId: int = 9
     kSwerveModuleRearRightTurningMotorCANId: int = 10
 
-    kSwerveModuleFrontLeftOffset: units.radians = -math.pi / 2
-    kSwerveModuleFrontRightOffset: units.radians = 0
-    kSwerveModuleRearLeftOffset: units.radians = math.pi
-    kSwerveModuleRearRightOffset: units.radians = math.pi / 2
+    kSwerveModuleFrontLeftTurningOffset: units.radians = -math.pi / 2
+    kSwerveModuleFrontRightTurningOffset: units.radians = 0
+    kSwerveModuleRearLeftTurningOffset: units.radians = math.pi
+    kSwerveModuleRearRightTurningOffset: units.radians = math.pi / 2
 
     kSwerveModuleFrontLeftTranslation = Translation2d(kWheelBase / 2, kTrackWidth / 2)
     kSwerveModuleFrontRightTranslation =Translation2d(kWheelBase / 2, -kTrackWidth / 2)
@@ -90,12 +90,10 @@ class Subsystems:
       kDrivingMotorCurrentLimit: units.amperes = 80
       kDrivingMotorMaxReverseOutput: units.percent = -1.0
       kDrivingMotorMaxForwardOutput: units.percent = 1.0
-      kDrivingMotorIdleMode = CANSparkBase.IdleMode.kBrake
       kDrivingMotorPIDConstants = PIDConstants(0.04, 0, 0, 1 / kDriveWheelFreeSpeedRps)
       kTurningMotorCurrentLimit: units.amperes = 20
       kTurningMotorMaxReverseOutput: units.percent = -1.0
       kTurningMotorMaxForwardOutput: units.percent = 1.0
-      kTurningMotorIdleMode = CANSparkBase.IdleMode.kBrake
       kTurningMotorPIDConstants = PIDConstants(1, 0, 0, 0)
  
   class Intake:
@@ -107,22 +105,22 @@ class Subsystems:
     kBeltsMotorMaxForwardOutput: units.percent = 0.8
     kBeltsMotorMaxReverseOutput: units.percent = -0.8
 
-    kBottomBeltsMotorIdleMode = CANSparkBase.IdleMode.kCoast
+    kBottomBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
     kTopBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
     kBeltsSpeedIntake: units.percent = 0.6
-    kBeltsSpeedAlign: units.percent = 0.3
+    kBeltsSpeedAlign: units.percent = 0.15
     kBeltsSpeedEject: units.percent = 0.6
     kBeltsSpeedLaunch: units.percent = 0.6
 
     kIntakeTriggerDistanceRear: units.millimeters = 240.0 
     kIntakeTriggerDistanceFront: units.millimeters = 320.0
-    kLauncherTriggerDistanceIntake: units.millimeters = 40.0
-    kLauncherTriggerDistanceAlign: units.millimeters = 60.0
+    kLauncherTriggerDistanceIntake: units.millimeters = 60.0
+    kLauncherTriggerDistanceAlign: units.millimeters = 80.0
     kLauncherReadyDistanceMin: units.millimeters = 20.0
     kLauncherReadyDistanceMax: units.millimeters = 120.0
 
-    kReloadTimeout: units.seconds = 0.2
+    kReloadTimeout: units.seconds = 0.1
 
   class Launcher:
     class Arm:
@@ -143,7 +141,7 @@ class Subsystems:
       kInputLimit: units.percent = 0.5
       kResetSpeed: units.percent = 0.2
 
-      kTargetAlignmentPositionTolerance: float = 0.1
+      kTargetAlignmentPositionTolerance: float = 0.05
 
       kPositionSubwoofer: float = 10.0
       kPositionPodium: float = 4.3
@@ -263,8 +261,8 @@ _aprilTagFieldLayout = AprilTagFieldLayout().loadField(AprilTagField.k2024Cresce
 
 class Game:
   class Commands:
-    kScoringAlignmentTimeout: units.seconds = 0.75
-    kLaunchTimeout: units.seconds = 1.25
+    kScoringAlignmentTimeout: units.seconds = 0.5
+    kScoringLaunchTimeout: units.seconds = 1.0
 
   class Field:
     kAprilTagFieldLayout = _aprilTagFieldLayout

@@ -10,10 +10,10 @@ import constants
 
 class AutoCommands:
   def __init__(
-      self, 
+      self,
       gameCommands: "GameCommands"
     ) -> None:
-    self.gameCommands = gameCommands
+    self._gameCommands = gameCommands
 
   def _getPath(self, autoPath: AutoPath) -> PathPlannerPath:
     return constants.Game.Auto.kPaths.get(autoPath)
@@ -25,7 +25,7 @@ class AutoCommands:
   
   def _pickup(self, path: PathPlannerPath) -> Command:
     return cmd.deadline(
-      self.gameCommands.runIntakeCommand(IntakeDirection.Front),
+      self._gameCommands.runIntakeCommand(IntakeDirection.Front),
       self._move(path)
     ).withTimeout(
       constants.Game.Auto.kPickupTimeout
@@ -33,21 +33,14 @@ class AutoCommands:
   
   def _score(self) -> Command:
     return cmd.sequence(
-      cmd.parallel(
-        self.gameCommands.alignRobotToTargetCommand(),
-        self.gameCommands.alignLauncherToTargetCommand()
-      ).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
-      self.gameCommands.runLauncherCommand()
+      self._gameCommands.scoreToTargetCommand()
     ).withName("AutoCommands:Score")
   
-  def _scoreAtSubwoofer(self) -> Command:
+  def _scorePreload(self) -> Command:
     return cmd.sequence(
-      self.gameCommands.alignLauncherToPositionCommand(
-        constants.Subsystems.Launcher.Arm.kPositionSubwoofer
-      ).withTimeout(constants.Game.Commands.kScoringAlignmentTimeout),
-      self.gameCommands.runLauncherCommand()
-    ).withName("AutoCommands:ScoreAtSubwoofer")
-  
+      self._gameCommands.launchAtPositionCommand(constants.Subsystems.Launcher.Arm.kPositionSubwoofer)
+    ).withName("AutoCommands:ScorePreload")
+
   # ######################################################################
   # ################################ AUTOS ###############################
   # ######################################################################
@@ -62,7 +55,7 @@ class AutoCommands:
 
   def auto0(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer()
+      self._scorePreload()
     ).withName("AutoCommands:Auto0")
   
   # ############################################
@@ -71,7 +64,7 @@ class AutoCommands:
 
   def auto10_1(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer(),
+      self._scorePreload(),
       self._pickup(self._getPath(AutoPath.Pickup1)),
       self._score()
     ).withName("AutoCommands:Auto10_1")
@@ -208,7 +201,7 @@ class AutoCommands:
 
   def auto20_2(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer(),
+      self._scorePreload(),
       self._pickup(self._getPath(AutoPath.Pickup2)),
       self._score()
     ).withName("AutoCommands:Auto20_2")
@@ -335,14 +328,14 @@ class AutoCommands:
 
   def auto30_3(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer(),
+      self._scorePreload(),
       self._pickup(self._getPath(AutoPath.Pickup3)),
       self._score()
     ).withName("AutoCommands:Auto30_3")
   
   def auto30_73(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer(),
+      self._scorePreload(),
       self._pickup(self._getPath(AutoPath.Pickup73)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score()
@@ -350,7 +343,7 @@ class AutoCommands:
    
   def auto30_83(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer(),
+      self._scorePreload(),
       self._pickup(self._getPath(AutoPath.Pickup8)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score()
@@ -358,7 +351,7 @@ class AutoCommands:
   
   def auto30_73_83(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer(),
+      self._scorePreload(),
       self._pickup(self._getPath(AutoPath.Pickup73)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score(),
@@ -369,7 +362,7 @@ class AutoCommands:
    
   def auto30_83_73(self) -> Command:
     return cmd.sequence(
-      self._scoreAtSubwoofer(),
+      self._scorePreload(),
       self._pickup(self._getPath(AutoPath.Pickup8)),
       self._move(self._getPath(AutoPath.ScoreStage3)),
       self._score(),

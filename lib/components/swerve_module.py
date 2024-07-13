@@ -4,8 +4,8 @@ from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from wpilib import SmartDashboard
 from rev import CANSparkBase, CANSparkLowLevel, CANSparkMax, CANSparkFlex, SparkAbsoluteEncoder
-from lib.classes import SwerveModuleLocation
-from lib import utils
+from lib.classes import SwerveModuleLocation, MotorIdleMode
+from lib import utils, logger
 if TYPE_CHECKING: import constants
 
 class SwerveModule:
@@ -37,10 +37,9 @@ class SwerveModule:
     utils.validateParam(self._drivingPIDController.setD(self._constants.kDrivingMotorPIDConstants.D))
     utils.validateParam(self._drivingPIDController.setFF(self._constants.kDrivingMotorPIDConstants.FF))
     utils.validateParam(self._drivingPIDController.setOutputRange(self._constants.kDrivingMotorMaxReverseOutput, self._constants.kDrivingMotorMaxForwardOutput))
-    utils.validateParam(self._drivingMotor.setIdleMode(self._constants.kDrivingMotorIdleMode))
     utils.validateParam(self._drivingMotor.setSmartCurrentLimit(self._constants.kDrivingMotorCurrentLimit))
+    utils.validateParam(self._drivingMotor.setIdleMode(CANSparkBase.IdleMode.kBrake))
     utils.validateParam(self._drivingMotor.burnFlash())
-    utils.validateParam(self._drivingEncoder.setPosition(0))
 
     self._turningMotor = CANSparkMax(turningMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
     self._turningEncoder = self._turningMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle)
@@ -59,9 +58,11 @@ class SwerveModule:
     utils.validateParam(self._turningPIDController.setPositionPIDWrappingEnabled(True))
     utils.validateParam(self._turningPIDController.setPositionPIDWrappingMinInput(self._constants.kTurningEncoderPositionPIDMinInput))
     utils.validateParam(self._turningPIDController.setPositionPIDWrappingMaxInput(self._constants.kTurningEncoderPositionPIDMaxInput))
-    utils.validateParam(self._turningMotor.setIdleMode(self._constants.kTurningMotorIdleMode))
     utils.validateParam(self._turningMotor.setSmartCurrentLimit(self._constants.kTurningMotorCurrentLimit))
+    utils.validateParam(self._turningMotor.setIdleMode(CANSparkBase.IdleMode.kBrake))
     utils.validateParam(self._turningMotor.burnFlash())
+
+    self._drivingEncoder.setPosition(0)
 
     utils.addRobotPeriodic(self._updateTelemetry)
 
@@ -79,7 +80,8 @@ class SwerveModule:
   def getPosition(self) -> SwerveModulePosition:
     return SwerveModulePosition(self._drivingEncoder.getPosition(), Rotation2d(self._turningEncoder.getPosition() - self._turningOffset))
   
-  def setIdleMode(self, idleMode: CANSparkBase.IdleMode) -> None:
+  def setIdleMode(self, motorIdleMode: MotorIdleMode) -> None:
+    idleMode = CANSparkBase.IdleMode.kCoast if motorIdleMode == MotorIdleMode.Coast else CANSparkBase.IdleMode.kBrake
     self._drivingMotor.setIdleMode(idleMode)
     self._turningMotor.setIdleMode(idleMode)
 

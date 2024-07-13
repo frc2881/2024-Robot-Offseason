@@ -78,7 +78,6 @@ def enableSoftLimits(controller: CANSparkBase, isEnabled: bool) -> None:
   controller.enableSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, isEnabled)
 
 def validateParam(error: REVLibError) -> None:
-  time.sleep(0.001)
   if error != REVLibError.kOk:
     logger.error(f'REVLibError: {error}')
 

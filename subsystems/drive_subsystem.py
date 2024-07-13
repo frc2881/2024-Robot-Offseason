@@ -7,9 +7,8 @@ from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from commands2 import Subsystem, Command
-from rev import CANSparkBase
 from lib import utils, logger
-from lib.classes import SwerveModuleLocation, DriveSpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
+from lib.classes import SwerveModuleLocation, MotorIdleMode, DriveSpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
 from lib.components.swerve_module import SwerveModule
 import constants
 
@@ -27,7 +26,7 @@ class DriveSubsystem(Subsystem):
       SwerveModuleLocation.FrontLeft,
       self._constants.kSwerveModuleFrontLeftDrivingMotorCANId,
       self._constants.kSwerveModuleFrontLeftTurningMotorCANId,
-      self._constants.kSwerveModuleFrontLeftOffset,
+      self._constants.kSwerveModuleFrontLeftTurningOffset,
       self._constants.SwerveModule 
     )
 
@@ -35,7 +34,7 @@ class DriveSubsystem(Subsystem):
       SwerveModuleLocation.FrontRight,
       self._constants.kSwerveModuleFrontRightDrivingMotorCANId,
       self._constants.kSwerveModuleFrontRightTurningMotorCANId,
-      self._constants.kSwerveModuleFrontRightOffset,
+      self._constants.kSwerveModuleFrontRightTurningOffset,
       self._constants.SwerveModule
     )
 
@@ -43,7 +42,7 @@ class DriveSubsystem(Subsystem):
       SwerveModuleLocation.RearLeft,
       self._constants.kSwerveModuleRearLeftDrivingMotorCANId,
       self._constants.kSwerveModuleRearLeftTurningMotorCANId,
-      self._constants.kSwerveModuleRearLeftOffset,
+      self._constants.kSwerveModuleRearLeftTurningOffset,
       self._constants.SwerveModule
     )
 
@@ -51,7 +50,7 @@ class DriveSubsystem(Subsystem):
       SwerveModuleLocation.RearRight,
       self._constants.kSwerveModuleRearRightDrivingMotorCANId,
       self._constants.kSwerveModuleRearRightTurningMotorCANId,
-      self._constants.kSwerveModuleRearRightOffset,
+      self._constants.kSwerveModuleRearRightTurningOffset,
       self._constants.SwerveModule
     )
 
@@ -105,8 +104,8 @@ class DriveSubsystem(Subsystem):
     SmartDashboard.putData("Robot/Drive/DriftCorrection", driftCorrectionChooser)
 
     idleModeChooser = SendableChooser()
-    idleModeChooser.setDefaultOption(CANSparkBase.IdleMode.kBrake.name.lstrip("k"), CANSparkBase.IdleMode.kBrake)
-    idleModeChooser.addOption(CANSparkBase.IdleMode.kCoast.name.lstrip("k"), CANSparkBase.IdleMode.kCoast)
+    idleModeChooser.setDefaultOption(MotorIdleMode.Brake.name, MotorIdleMode.Brake)
+    idleModeChooser.addOption(MotorIdleMode.Coast.name, MotorIdleMode.Coast)
     idleModeChooser.onChange(lambda idleMode: self._setIdleMode(idleMode))
     SmartDashboard.putData("Robot/Drive/IdleMode", idleModeChooser)
 
@@ -190,12 +189,12 @@ class DriveSubsystem(Subsystem):
       self._swerveModuleRearRight.getState()
     )
   
-  def _setIdleMode(self, idleMode: CANSparkBase.IdleMode) -> None:
+  def _setIdleMode(self, idleMode: MotorIdleMode) -> None:
     self._swerveModuleFrontLeft.setIdleMode(idleMode)
     self._swerveModuleFrontRight.setIdleMode(idleMode)
     self._swerveModuleRearLeft.setIdleMode(idleMode)
     self._swerveModuleRearRight.setIdleMode(idleMode)
-    SmartDashboard.putString("Robot/Drive/IdleMode/selected", idleMode.name.lstrip("k"))
+    SmartDashboard.putString("Robot/Drive/IdleMode/selected", idleMode.name)
 
   def lockCommand(self) -> Command:
     return self.startEnd(
@@ -222,8 +221,6 @@ class DriveSubsystem(Subsystem):
       ]
     ).onlyIf(
       lambda: self._lockState != DriveLockState.Locked
-    ).until(
-      lambda: self._isAlignedToTarget
     ).withName("DriveSubsystem:AlignToTarget")
 
   def _alignToTarget(self, robotHeading: units.degrees) -> None:
@@ -245,7 +242,7 @@ class DriveSubsystem(Subsystem):
     self._isAlignedToTarget = False
 
   def reset(self) -> None:
-    self._setIdleMode(CANSparkBase.IdleMode.kBrake)
+    self._setIdleMode(MotorIdleMode.Brake)
     self.drive(ChassisSpeeds())
     self.clearTargetAlignment()
   
