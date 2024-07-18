@@ -1,15 +1,14 @@
 import math
-from wpilib import ADIS16470_IMU, SPI, SerialPort
+from wpilib import SerialPort
 from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Pose3d, Translation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from wpimath import units
 from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
-from rev import CANSparkBase
 from photonlibpy.photonPoseEstimator import PoseStrategy
 from extras.pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from extras.pathplannerlib.pathfinding import PathConstraints
 from extras.pathplannerlib.path import PathPlannerPath
-from lib.classes import PIDConstants, MotorIdleMode
+from lib.classes import PIDConstants
 from classes import AutoPath, LauncherRollersSpeeds, LauncherArmPositionTarget
 
 class Power:
@@ -73,7 +72,7 @@ class Subsystems:
     )
 
     class SwerveModule:
-      kFreeSpeed: units.revolutions_per_minute = 6238.73054766
+      kFreeSpeed: units.revolutions_per_minute = 6784
       kWheelDiameter: units.meters = units.inchesToMeters(3.0)
       kWheelCircumference: units.meters = kWheelDiameter * math.pi
       kDrivingMotorPinionTeeth: int = 14
@@ -97,28 +96,25 @@ class Subsystems:
       kTurningMotorPIDConstants = PIDConstants(1, 0, 0, 0)
  
   class Intake:
-    kBottomBeltsMotorCANId: int = 18
-    kTopRearBeltsMotorCANId: int = 19
-    kTopFrontBeltsMotorCANId: int = 20
+    kBottomMotorCANId: int = 18
+    kTopRearMotorCANId: int = 19
+    kTopFrontMotorCANId: int = 20
 
-    kBeltsMotorCurrentLimit: units.amperes = 60
-    kBeltsMotorMaxForwardOutput: units.percent = 0.8
-    kBeltsMotorMaxReverseOutput: units.percent = -0.8
+    kMotorCurrentLimit: units.amperes = 60
+    kMotorMaxForwardOutput: units.percent = 0.8
+    kMotorMaxReverseOutput: units.percent = -0.8
 
-    kBottomBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
-    kTopBeltsMotorIdleMode = CANSparkBase.IdleMode.kBrake
+    kSpeedIntake: units.percent = 0.6
+    kSpeedAlign: units.percent = 0.15
+    kSpeedEject: units.percent = 0.6
+    kSpeedLaunch: units.percent = 0.6
 
-    kBeltsSpeedIntake: units.percent = 0.6
-    kBeltsSpeedAlign: units.percent = 0.15
-    kBeltsSpeedEject: units.percent = 0.6
-    kBeltsSpeedLaunch: units.percent = 0.6
-
-    kIntakeTriggerDistanceRear: units.millimeters = 240.0 
-    kIntakeTriggerDistanceFront: units.millimeters = 320.0
-    kLauncherTriggerDistanceIntake: units.millimeters = 60.0
-    kLauncherTriggerDistanceAlign: units.millimeters = 80.0
-    kLauncherReadyDistanceMin: units.millimeters = 20.0
-    kLauncherReadyDistanceMax: units.millimeters = 120.0
+    kDistanceIntakeRear: units.millimeters = 240.0 
+    kDistanceIntakeFront: units.millimeters = 320.0
+    kDistanceLauncherIntake: units.millimeters = 60.0
+    kDistanceLauncherAlign: units.millimeters = 80.0
+    kDistanceLauncherReadyMin: units.millimeters = 20.0
+    kDistanceLauncherReadyMax: units.millimeters = 120.0
 
     kReloadTimeout: units.seconds = 0.1
 
@@ -129,7 +125,6 @@ class Subsystems:
       kMotorCurrentLimit: units.amperes = 60
       kMotorMaxReverseOutput: units.percent = -1.0
       kMotorMaxForwardOutput: units.percent = 1.0
-      kMotorIdleMode = CANSparkBase.IdleMode.kBrake
       kMotorPIDConstants = PIDConstants(0.0003, 0, 0.00015, 1 / 16.8)
       kMotorForwardSoftLimit: float = 12.0
       kMotorReverseSoftLimit: float = 1.0
@@ -139,7 +134,7 @@ class Subsystems:
       kMotorSmartMotionMaxAccel: float = 100.0 / kMotorVelocityConversionFactor
 
       kInputLimit: units.percent = 0.5
-      kResetSpeed: units.percent = 0.2
+      kResetSpeed: units.percent = 0.05
 
       kTargetAlignmentPositionTolerance: float = 0.05
 
@@ -168,12 +163,11 @@ class Subsystems:
       kBottomMotorCANId: int = 12
       kTopMotorCANId: int = 13
 
-      kMotorFreeSpeed: units.revolutions_per_minute = 6238.73054766
+      kMotorFreeSpeed: units.revolutions_per_minute = 6784
 
       kMotorCurrentLimit: units.amperes = 100
       kMotorMaxForwardOutput: units.percent = 1.0
       kMotorMaxReverseOutput: units.percent = -1.0
-      kMotorIdleMode = CANSparkBase.IdleMode.kBrake
 
       kSpeedsDefault = LauncherRollersSpeeds(0.80, 0.80)
       kSpeedsAmp = LauncherRollersSpeeds(0.30, 0.35)
@@ -189,13 +183,12 @@ class Subsystems:
       kMotorCurrentLimit: units.amperes = 100
       kMotorMaxReverseOutput: units.percent = -1.0
       kMotorMaxForwardOutput: units.percent = 1.0
-      kMotorIdleMode = CANSparkBase.IdleMode.kBrake
       kMotorPIDConstants = PIDConstants(0.05, 0, 0, 0)
       kMotorForwardSoftLimit: float = 33.0
       kMotorReverseSoftLimit: float = 0.0
 
       kInputLimit: units.percent = 0.5
-      kResetSpeed: units.percent = 0.2
+      kResetSpeed: units.percent = 0.05
 
       kPositionDefault: float = 8.2
 
@@ -209,14 +202,6 @@ class Sensors:
   class Gyro:
     class NAVX2:
       kSerialPort = SerialPort.Port.kUSB
-    class ADIS16470:
-      kSPIPort = SPI.Port.kOnboardCS0
-      kIMUAxisYaw = ADIS16470_IMU.IMUAxis.kZ
-      kIMUAxisPitch = ADIS16470_IMU.IMUAxis.kX
-      kIMUAxisRoll = ADIS16470_IMU.IMUAxis.kY
-      kInitCalibrationTime = ADIS16470_IMU.CalibrationTime._8s
-      kCommandCalibrationTime = ADIS16470_IMU.CalibrationTime._4s
-      kCommandCalibrationDelay: units.seconds = 4.0
 
   class Pose:
     kPoseSensors: dict[str, Transform3d] = {
@@ -242,15 +227,15 @@ class Sensors:
   class Distance:
     class Intake:
       kSensorName = "Intake"
-      kMinTargetDistance: units.millimeters = 0
+      kMinTargetDistance: units.millimeters = 1
       kMaxTargetDistance: units.millimeters = 320
     class Launcher:
       kSensorName = "Launcher"
-      kMinTargetDistance: units.millimeters = 0
+      kMinTargetDistance: units.millimeters = 1
       kMaxTargetDistance: units.millimeters = 320
     class Climber:
       kSensorName = "Climber"
-      kMinTargetDistance: units.millimeters = 0
+      kMinTargetDistance: units.millimeters = 1
       kMaxTargetDistance: units.millimeters = 240
 
   class Object:
@@ -266,7 +251,9 @@ class Game:
 
   class Field:
     kAprilTagFieldLayout = _aprilTagFieldLayout
-    kBounds = (Translation2d(0, 0), Translation2d(kAprilTagFieldLayout.getFieldLength(), kAprilTagFieldLayout.getFieldWidth()))
+    kLength = kAprilTagFieldLayout.getFieldLength()
+    kWidth = kAprilTagFieldLayout.getFieldWidth()
+    kBounds = (Translation2d(0, 0), Translation2d(kLength, kWidth))
 
     class Targets:  
       kBlueSpeaker = _aprilTagFieldLayout.getTagPose(7) or Pose3d()

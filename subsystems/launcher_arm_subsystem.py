@@ -24,7 +24,7 @@ class LauncherArmSubsystem(Subsystem):
     self._armEncoder = self._armMotor.getEncoder()
     self._armPIDController = self._armMotor.getPIDController()
     utils.validateParam(self._armMotor.restoreFactoryDefaults())
-    utils.validateParam(self._armMotor.setIdleMode(self._constants.kMotorIdleMode))
+    utils.validateParam(self._armMotor.setIdleMode(CANSparkBase.IdleMode.kBrake))
     utils.validateParam(self._armMotor.setSmartCurrentLimit(self._constants.kMotorCurrentLimit))
     utils.validateParam(self._armMotor.setSecondaryCurrentLimit(self._constants.kMotorCurrentLimit))
     utils.validateParam(self._armMotor.enableSoftLimit(CANSparkBase.SoftLimitDirection.kForward, True))

@@ -111,6 +111,9 @@ class DriveSubsystem(Subsystem):
 
     self._lockState: DriveLockState = DriveLockState.Unlocked
 
+    SmartDashboard.putNumber("Robot/Drive/Chassis/Length", self._constants.kWheelBase)
+    SmartDashboard.putNumber("Robot/Drive/Chassis/Width", self._constants.kTrackWidth)
+
   def periodic(self) -> None:
     self._updateTelemetry()
 

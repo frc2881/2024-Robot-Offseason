@@ -36,6 +36,9 @@ class LocalizationSubsystem(Subsystem):
     self._targetInfo = TargetInfo(0, 0, 0)
     self._currentAlliance = None
 
+    SmartDashboard.putNumber("Robot/Game/Field/Length", constants.Game.Field.kLength)
+    SmartDashboard.putNumber("Robot/Game/Field/Width", constants.Game.Field.kWidth)
+
   def periodic(self) -> None:
     self._updatePose()
     self._updateTargetPose()

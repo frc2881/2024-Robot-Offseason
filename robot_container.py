@@ -7,7 +7,6 @@ from lib.classes import Alliance, RobotState
 from lib.controllers.game_controller import GameController
 from lib.controllers.lights_controller import LightsController
 from lib.sensors.distance_sensor import DistanceSensor
-# from lib.sensors.gyro_sensor_adis16470 import GyroSensor_ADIS16470
 from lib.sensors.gyro_sensor_navx2 import GyroSensor_NAVX2
 from lib.sensors.pose_sensor import PoseSensor
 from lib.sensors.object_sensor import ObjectSensor
@@ -45,15 +44,6 @@ class RobotContainer:
     )
 
   def _initSensors(self) -> None:
-    # self.gyroSensor = GyroSensor_ADIS16470(
-    #   constants.Sensors.Gyro.ADIS16470.kSPIPort,
-    #   constants.Sensors.Gyro.ADIS16470.kIMUAxisYaw,
-    #   constants.Sensors.Gyro.ADIS16470.kIMUAxisPitch,
-    #   constants.Sensors.Gyro.ADIS16470.kIMUAxisRoll,
-    #   constants.Sensors.Gyro.ADIS16470.kInitCalibrationTime,
-    #   constants.Sensors.Gyro.ADIS16470.kCommandCalibrationTime,
-    #   constants.Sensors.Gyro.ADIS16470.kCommandCalibrationDelay
-    # )
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kSerialPort)
     self.poseSensors: list[PoseSensor] = []
     for cameraName, cameraTransform in constants.Sensors.Pose.kPoseSensors.items():
@@ -94,7 +84,9 @@ class RobotContainer:
       lambda: self.driveSubsystem.getSwerveModulePositions()
     )
     self.intakeSubsystem = IntakeSubsystem(
+      lambda: self.intakeDistanceSensor.hasTarget(),
       lambda: self.intakeDistanceSensor.getDistance(),
+      lambda: self.launcherDistanceSensor.hasTarget(),
       lambda: self.launcherDistanceSensor.getDistance()
     )
     self.launcherArmSubsystem = LauncherArmSubsystem()
@@ -264,7 +256,7 @@ class RobotContainer:
     self._autoChooser.addOption("[ 3 ] _0_3_83_73", lambda: self.autoCommands.auto3_0_3_83_73()) 
 
     SmartDashboard.putData("Robot/Auto/Command", self._autoChooser)
-    
+
   def getAutonomousCommand(self) -> Command:
     return self._autoChooser.getSelected()()
     
@@ -306,5 +298,4 @@ class RobotContainer:
     self.lightsController.setLightsMode(lightsMode)
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putNumber("Robot/Power/TotalCurrent", self.powerDistribution.getTotalCurrent())
     SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())
