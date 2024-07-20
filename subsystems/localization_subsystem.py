@@ -39,11 +39,15 @@ class LocalizationSubsystem(Subsystem):
     SmartDashboard.putNumber("Robot/Game/Field/Length", constants.Game.Field.kLength)
     SmartDashboard.putNumber("Robot/Game/Field/Width", constants.Game.Field.kWidth)
 
+    utils.addRobotPeriodic(lambda: [ 
+      self._updatePose(),
+      self._updateTargetPose(),
+      self._updateTargetInfo(),
+      self._updateTelemetry()
+    ], 0.033)
+
   def periodic(self) -> None:
-    self._updatePose()
-    self._updateTargetPose()
-    self._updateTargetInfo()
-    self._updateTelemetry()
+    pass
 
   def _updatePose(self) -> None:
     self._poseEstimator.update(self._getGyroRotation(), self._getSwerveModulePositions())

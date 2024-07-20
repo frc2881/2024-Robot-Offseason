@@ -1,7 +1,7 @@
 from typing import Callable
 from wpilib import SmartDashboard
 from wpimath import units
-from commands2 import Subsystem, Command
+from commands2 import Subsystem, Command, cmd
 from rev import CANSparkBase, CANSparkLowLevel, CANSparkMax
 from lib import utils, logger
 from lib.classes import MotorDirection
@@ -58,7 +58,7 @@ class IntakeSubsystem(Subsystem):
         self._constants.kSpeedIntake
       )
     ).until(
-      lambda: self._getIntakeHasTarget() and self._getIntakeDistance() <= self._constants.kDistanceIntakeRear
+      lambda: self._getIntakeHasTarget()
     ).onlyIf(
       lambda: intakeDirection == IntakeDirection.Rear
     ).andThen(
@@ -70,7 +70,7 @@ class IntakeSubsystem(Subsystem):
           self._constants.kSpeedIntake
         )
       ).until(
-        lambda: self._getIntakeHasTarget() and self._getIntakeDistance() >= self._constants.kDistanceIntakeFront
+        lambda: not self._getIntakeHasTarget()
       ).onlyIf(
         lambda: intakeDirection == IntakeDirection.Rear
       )
@@ -89,6 +89,13 @@ class IntakeSubsystem(Subsystem):
       lambda end: self.reset()
     ).withName("IntakeSubsystem:Run")
   
+  def reloadCommand(self) -> Command:
+    return self.ejectCommand().withTimeout(
+      constants.Subsystems.Intake.kReloadTimeout
+    ).andThen(
+      self.runCommand(IntakeDirection.Front)
+    ).withName("IntakeSubsystem:Reload")
+
   def ejectCommand(self) -> Command:
     return self.run(
       lambda: self._run(
@@ -102,15 +109,15 @@ class IntakeSubsystem(Subsystem):
     ).withName("IntakeSubsystem:Eject")
   
   def alignCommand(self) -> Command:
-    return self.run(
+    return cmd.run(
       lambda: self._run(
-        MotorDirection.Stopped, 
+        MotorDirection.Forward, 
         MotorDirection.Forward, 
         MotorDirection.Reverse, 
         self._constants.kSpeedAlign
       )
-    ).until(
-      lambda: self._getLauncherHasTarget() and self._getLauncherDistance() >= self._constants.kDistanceLauncherAlign
+    ).withTimeout(
+      self._constants.kAlignTimeout
     ).finallyDo(
       lambda end: self.reset()
     ).withName("IntakeSubsystem:Align")
@@ -118,7 +125,7 @@ class IntakeSubsystem(Subsystem):
   def launchCommand(self) -> Command:
     return self.run(
       lambda: self._run(
-        MotorDirection.Stopped, 
+        MotorDirection.Reverse, 
         MotorDirection.Reverse, 
         MotorDirection.Forward, 
         self._constants.kSpeedLaunch
@@ -138,6 +145,9 @@ class IntakeSubsystem(Subsystem):
     else:
       return 0
 
+  def isLoaded(self) -> bool:
+    return self._getLauncherHasTarget() and self._getLauncherDistance() <= self._constants.kDistanceLauncherReadyMax
+
   def isLaunchReady(self) -> bool:
     return self._getLauncherHasTarget() and utils.isValueInRange(self._getLauncherDistance(), self._constants.kDistanceLauncherReadyMin, self._constants.kDistanceLauncherReadyMax)
   
@@ -148,4 +158,5 @@ class IntakeSubsystem(Subsystem):
     
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber("Robot/Intake/Speed", self._topFrontMotor.get())
+    SmartDashboard.putBoolean("Robot/Intake/IsLoaded", self.isLoaded())
     SmartDashboard.putBoolean("Robot/Intake/IsLaunchReady", self.isLaunchReady())

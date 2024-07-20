@@ -32,9 +32,10 @@ class AutoCommands:
     ).withName("AutoCommands:Pickup")
   
   def _score(self) -> Command:
-    return cmd.sequence(
-      self._gameCommands.scoreToTargetCommand()
-    ).withName("AutoCommands:Score")
+    return cmd.deadline(
+      self._gameCommands.launchToTargetCommand(),
+      self._gameCommands.alignRobotToTargetCommand().withTimeout(constants.Game.Commands.kScoringAlignmentTimeout)
+    ).withName("GameCommands:ScoreToTarget")
   
   def _scorePreload(self) -> Command:
     return cmd.sequence(

@@ -105,17 +105,15 @@ class Subsystems:
     kMotorMaxReverseOutput: units.percent = -0.8
 
     kSpeedIntake: units.percent = 0.6
-    kSpeedAlign: units.percent = 0.15
+    kSpeedAlign: units.percent = 0.4
     kSpeedEject: units.percent = 0.6
-    kSpeedLaunch: units.percent = 0.6
+    kSpeedLaunch: units.percent = 0.8
 
-    kDistanceIntakeRear: units.millimeters = 240.0 
-    kDistanceIntakeFront: units.millimeters = 320.0
     kDistanceLauncherIntake: units.millimeters = 60.0
-    kDistanceLauncherAlign: units.millimeters = 80.0
-    kDistanceLauncherReadyMin: units.millimeters = 20.0
-    kDistanceLauncherReadyMax: units.millimeters = 120.0
+    kDistanceLauncherReadyMin: units.millimeters = 40.0 # TODO: update with testing
+    kDistanceLauncherReadyMax: units.millimeters = 120.0 # TODO: update with testing
 
+    kAlignTimeout: units.seconds = 0.08
     kReloadTimeout: units.seconds = 0.1
 
   class Launcher:
@@ -134,12 +132,12 @@ class Subsystems:
       kMotorSmartMotionMaxAccel: float = 100.0 / kMotorVelocityConversionFactor
 
       kInputLimit: units.percent = 0.5
-      kResetSpeed: units.percent = 0.05
+      kResetSpeed: units.percent = 0.1
 
       kTargetAlignmentPositionTolerance: float = 0.05
 
       kPositionSubwoofer: float = 10.0
-      kPositionPodium: float = 4.3
+      kPositionPodium: float = 4.5
       kPositionAmp: float = 9.50
       kPositionShuttle: float = 9.50
       kPositionClimber: float = 1.00
@@ -188,7 +186,7 @@ class Subsystems:
       kMotorReverseSoftLimit: float = 0.0
 
       kInputLimit: units.percent = 0.5
-      kResetSpeed: units.percent = 0.05
+      kResetSpeed: units.percent = 0.1
 
       kPositionDefault: float = 8.2
 
@@ -207,15 +205,15 @@ class Sensors:
     kPoseSensors: dict[str, Transform3d] = {
       "Rear": Transform3d(
         Translation3d(units.inchesToMeters(-4.75), units.inchesToMeters(-11.25), units.inchesToMeters(20.0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.0), units.degreesToRadians(-177.0))
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.3), units.degreesToRadians(-177.0))
       ),
       "Right": Transform3d(
         Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-11.5), units.inchesToMeters(15.5)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-28.4), units.degreesToRadians(-90.0))
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.3), units.degreesToRadians(-90.0))
       ),
       "Left": Transform3d(
         Translation3d(units.inchesToMeters(5.75), units.inchesToMeters(3.25), units.inchesToMeters(14.0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.5), units.degreesToRadians(90))
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.3), units.degreesToRadians(90))
       )
     }
     kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
@@ -247,7 +245,7 @@ _aprilTagFieldLayout = AprilTagFieldLayout().loadField(AprilTagField.k2024Cresce
 class Game:
   class Commands:
     kScoringAlignmentTimeout: units.seconds = 0.5
-    kScoringLaunchTimeout: units.seconds = 1.0
+    kScoringLaunchTimeout: units.seconds = 1.25
 
   class Field:
     kAprilTagFieldLayout = _aprilTagFieldLayout

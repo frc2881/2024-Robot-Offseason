@@ -118,35 +118,27 @@ class RobotContainer:
         lambda: self.driverController.getRightX()
       )
     )
-
     self.driverController.rightTrigger().and_(
       (self.driverController.rightStick().or_(
         self.driverController.leftBumper()).or_(
           self.driverController.a()).or_(
-            self.driverController.b())
-      ).negate()
-    ).whileTrue(self.gameCommands.runIntakeCommand(IntakeDirection.Front))
+            self.driverController.b())).negate()).whileTrue(self.gameCommands.runIntakeCommand(IntakeDirection.Front))
+    self.driverController.rightTrigger().and_(self.driverController.rightStick()).whileTrue(self.gameCommands.launchToTargetCommand())
+    self.driverController.rightTrigger().and_(
+      self.driverController.leftBumper().or_(
+        self.driverController.a()).or_(
+          self.driverController.b())).whileTrue(self.gameCommands.runLauncherCommand())
     self.driverController.leftTrigger().whileTrue(self.gameCommands.runIntakeCommand(IntakeDirection.Rear))
     self.driverController.rightBumper().whileTrue(self.gameCommands.ejectIntakeCommand())
     self.driverController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle, constants.Subsystems.Launcher.Rollers.kSpeedsShuttle))
-    self.driverController.leftBumper().and_(self.driverController.rightTrigger()).whileTrue(
-      self.gameCommands.launchAtPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle, constants.Subsystems.Launcher.Rollers.kSpeedsShuttle)
-    )
     self.driverController.rightStick().whileTrue(self.gameCommands.alignRobotToTargetCommand())
-    self.driverController.rightStick().and_(self.driverController.rightTrigger()).whileTrue(self.gameCommands.launchToTargetCommand())
     self.driverController.leftStick().whileTrue(self.driveSubsystem.lockCommand())
     self.driverController.povUp().whileTrue(self.climberSubsystem.setArmToDefaultPositionCommand())
     # self.driverController.povDown().whileTrue(cmd.none())
     self.driverController.povLeft().whileTrue(self.climberSubsystem.unlockArmCommand())
     # self.driverController.povRight().whileTrue(cmd.none())
     self.driverController.a().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp, constants.Subsystems.Launcher.Rollers.kSpeedsAmp))
-    self.driverController.a().and_(self.driverController.rightTrigger()).whileTrue(
-      self.gameCommands.launchAtPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp, constants.Subsystems.Launcher.Rollers.kSpeedsAmp)
-    )
     self.driverController.b().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionSubwoofer))
-    self.driverController.b().and_(self.driverController.rightTrigger()).whileTrue(
-      self.gameCommands.launchAtPositionCommand(constants.Subsystems.Launcher.Arm.kPositionSubwoofer)
-    )
     self.driverController.y().whileTrue(self.gameCommands.reloadIntakeCommand())
     self.driverController.x().whileTrue(self.gameCommands.runClimberSetupCommand()).onFalse(self.gameCommands.runClimberEngageCommand())
     self.driverController.start().onTrue(self.gyroSensor.calibrateCommand())
@@ -158,9 +150,12 @@ class RobotContainer:
         lambda: self.operatorController.getLeftY()
       )
     )
-    self.operatorController.rightTrigger().and_(self.operatorController.leftTrigger().or_(self.operatorController.povUp()).or_(self.operatorController.povDown())).whileTrue(self.gameCommands.runLauncherCommand())
+    self.operatorController.rightTrigger().and_(
+      self.operatorController.leftTrigger().or_(
+        self.operatorController.povUp()).or_(
+          self.operatorController.povDown())).whileTrue(self.gameCommands.runLauncherCommand())
     self.operatorController.leftTrigger().whileTrue(self.gameCommands.alignLauncherToTargetCommand())
-    self.operatorController.rightBumper().and_(self.operatorController.leftBumper()).whileTrue(self.gameCommands.runLauncherCommand(constants.Subsystems.Launcher.Rollers.kSpeedsAmp, constants.Subsystems.Launcher.Arm.kPositionAmp))
+    self.operatorController.rightBumper().and_(self.operatorController.leftBumper()).whileTrue(self.gameCommands.runLauncherCommand())
     self.operatorController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp, constants.Subsystems.Launcher.Rollers.kSpeedsAmp))
     # self.operatorController.rightStick().whileTrue(cmd.none())
     # self.operatorController.leftStick().whileTrue(cmd.none())
@@ -287,7 +282,7 @@ class RobotContainer:
     else: 
       if self.launcherDistanceSensor.hasTarget() or self.intakeDistanceSensor.hasTarget():
         lightsMode = LightsMode.IntakeNotReady
-        if self.intakeSubsystem.isLaunchReady():
+        if self.intakeSubsystem.isLoaded():
           lightsMode = LightsMode.IntakeReady
           if utils.getRobotState() == RobotState.Disabled:
             if not self.localizationSubsystem.hasVisionTargets():
