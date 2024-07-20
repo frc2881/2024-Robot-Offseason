@@ -65,6 +65,14 @@ class GameCommands:
       )
     ).withName("GameCommands:AlignLauncherToPosition")
   
+  def alignLauncherCommand(self, launcherRollerSpeeds = constants.Subsystems.Launcher.Rollers.kSpeedsDefault) -> Command:
+    return cmd.sequence(
+      self.robot.intakeSubsystem.alignCommand(),
+      cmd.parallel(
+        self.robot.launcherRollersSubsystem.runCommand(launcherRollerSpeeds)
+      )
+    ).withName("GameCommands:AlignLauncher")
+  
   def runLauncherCommand(self) -> Command:
     return cmd.sequence(
       cmd.waitUntil(lambda: self.robot.launcherRollersSubsystem.isLaunchReady()).withTimeout(constants.Game.Commands.kScoringLaunchTimeout),

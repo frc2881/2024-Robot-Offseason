@@ -104,14 +104,14 @@ class Subsystems:
     kMotorMaxForwardOutput: units.percent = 0.8
     kMotorMaxReverseOutput: units.percent = -0.8
 
-    kSpeedIntake: units.percent = 0.6
+    kSpeedIntake: units.percent = 0.8
     kSpeedAlign: units.percent = 0.4
     kSpeedEject: units.percent = 0.6
     kSpeedLaunch: units.percent = 0.8
 
-    kDistanceLauncherIntake: units.millimeters = 60.0
-    kDistanceLauncherReadyMin: units.millimeters = 40.0 # TODO: update with testing
-    kDistanceLauncherReadyMax: units.millimeters = 120.0 # TODO: update with testing
+    kDistanceLauncherIntake: units.millimeters = 80.0
+    kDistanceLauncherReadyMin: units.millimeters = 40.0
+    kDistanceLauncherReadyMax: units.millimeters = 120.0
 
     kAlignTimeout: units.seconds = 0.08
     kReloadTimeout: units.seconds = 0.1
