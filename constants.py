@@ -139,7 +139,7 @@ class Subsystems:
       kPositionSubwoofer: float = 10.0
       kPositionPodium: float = 4.5
       kPositionAmp: float = 9.50
-      kPositionShuttle: float = 9.50
+      kPositionShuttle: float = 8.75
       kPositionClimber: float = 1.00
       kPositionIntake: float = 3.00
 
@@ -169,7 +169,7 @@ class Subsystems:
 
       kSpeedsDefault = LauncherRollersSpeeds(0.80, 0.80)
       kSpeedsAmp = LauncherRollersSpeeds(0.30, 0.35)
-      kSpeedsShuttle = LauncherRollersSpeeds(0.65, 0.65)
+      kSpeedsShuttle = LauncherRollersSpeeds(0.7, 0.7)
 
       kLaunchSpeedDeltaMin: units.percent = 0.95
 
@@ -183,12 +183,14 @@ class Subsystems:
       kMotorMaxForwardOutput: units.percent = 1.0
       kMotorPIDConstants = PIDConstants(0.05, 0, 0, 0)
       kMotorForwardSoftLimit: float = 33.0
-      kMotorReverseSoftLimit: float = 0.0
+      kMotorReverseSoftLimit: float = 0
 
       kInputLimit: units.percent = 0.5
       kResetSpeed: units.percent = 0.1
 
       kPositionDefault: float = 8.2
+      kPositionSetup: float = 32.0
+      kPositionEngage: float = 0
 
     class Brake:
       kServoChannel: int = 9

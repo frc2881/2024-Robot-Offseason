@@ -39,9 +39,12 @@ class GameCommands:
           lambda: self.robot.localizationSubsystem.getPose(), 
           lambda: self.robot.localizationSubsystem.getTargetHeading()
         ),
-        self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short)
-      ),
-      self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
+        self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short),
+        cmd.sequence(
+          cmd.waitUntil(lambda: self.robot.driveSubsystem.isAlignedToTarget()),
+          self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
+        )
+      )
     ).withName("GameCommands:AlignRobotToTarget")
 
   def alignLauncherToTargetCommand(self) -> Command:
@@ -106,13 +109,13 @@ class GameCommands:
       cmd.runOnce(lambda: self.robot.climberDistanceSensor.resetTrigger()),
       cmd.parallel(
         self.robot.launcherArmSubsystem.alignToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionClimber),
-        self.robot.climberSubsystem.moveArmUpCommand()
+        self.robot.climberSubsystem.setArmToPositionCommand(constants.Subsystems.Climber.Arm.kPositionSetup)
       )
     ).withName("GameCommands:RunClimberSetup")
   
   def runClimberEngageCommand(self) -> Command:
     return cmd.race(
-      self.robot.climberSubsystem.moveArmDownCommand(),
+      self.robot.climberSubsystem.setArmToPositionCommand(constants.Subsystems.Climber.Arm.kPositionEngage),
       cmd.sequence(
         cmd.waitSeconds(2.5),
         self.robot.climberSubsystem.lockArmCommand().withTimeout(3.0),

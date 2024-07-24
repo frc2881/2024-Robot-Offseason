@@ -47,24 +47,10 @@ class ClimberSubsystem(Subsystem):
   def periodic(self) -> None:
     self._updateTelemetry()
 
-  def moveArmUpCommand(self) -> Command:
-    return self.run(
-      lambda: self._armLeftMotor.set(self._constants.Arm.kInputLimit)
-    ).finallyDo(
-      lambda: self._armLeftMotor.set(0)
-    ).withName("ClimberSubsystem:MoveArmUp")
-  
-  def moveArmDownCommand(self) -> Command:
-    return self.run(
-      lambda: self._armLeftMotor.set(-self._constants.Arm.kInputLimit)
-    ).finallyDo(
-      lambda: self._armLeftMotor.set(0)
-    ).withName("ClimberSubsystem:MoveArmDown")
-
-  def setArmToDefaultPositionCommand(self) -> Command:
+  def setArmToPositionCommand(self, position: float) -> Command:
     return self.runOnce(
-      lambda: self._setToDefaultPosition()
-    ).withName("ClimberSubsystem:SetArmToDefaultPosition")
+      lambda: self._setToPosition(position)
+    ).withName("ClimberSubsystem:SetArmToPosition")
 
   def unlockArmCommand(self) -> Command:
     return cmd.runOnce(
@@ -76,8 +62,8 @@ class ClimberSubsystem(Subsystem):
       lambda: self._brakeServo.set(self._constants.Brake.kPositionLocked)
     ).withName("ClimberSubsystem:LockArm")
   
-  def _setToDefaultPosition(self) -> None:
-    self._armLeftPIDController.setReference(self._constants.Arm.kPositionDefault, CANSparkLowLevel.ControlType.kPosition)
+  def _setToPosition(self, position: float) -> None:
+    self._armLeftPIDController.setReference(position, CANSparkLowLevel.ControlType.kPosition)
 
   def resetToZeroCommand(self) -> Command:
     return self.startEnd(
@@ -102,7 +88,7 @@ class ClimberSubsystem(Subsystem):
   def reset(self) -> None:
     self._armLeftMotor.set(0)
     self._brakeServo.set(self._constants.Brake.kPositionUnlocked)
-    self._setToDefaultPosition()
+    self._setToPosition(self._constants.Arm.kPositionDefault)
 
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber("Robot/Climber/Arm/Position", self._armLeftEncoder.getPosition())

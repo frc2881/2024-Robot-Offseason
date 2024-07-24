@@ -135,7 +135,7 @@ class RobotContainer:
     self.driverController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle, constants.Subsystems.Launcher.Rollers.kSpeedsShuttle))
     self.driverController.rightStick().whileTrue(self.gameCommands.alignRobotToTargetCommand())
     self.driverController.leftStick().whileTrue(self.driveSubsystem.lockCommand())
-    self.driverController.povUp().whileTrue(self.climberSubsystem.setArmToDefaultPositionCommand())
+    self.driverController.povUp().whileTrue(self.climberSubsystem.setArmToPositionCommand(constants.Subsystems.Climber.Arm.kPositionDefault))
     # self.driverController.povDown().whileTrue(cmd.none())
     self.driverController.povLeft().whileTrue(self.climberSubsystem.unlockArmCommand())
     # self.driverController.povRight().whileTrue(cmd.none())
@@ -147,7 +147,7 @@ class RobotContainer:
     self.driverController.back().onTrue(self.gyroSensor.resetCommand())
 
     # OPERATOR ========================================
-    self.launcherArmSubsystem.setDefaultCommand(
+    self.operatorController.leftY().whileTrue(
       self.launcherArmSubsystem.runCommand(
         lambda: self.operatorController.getLeftY()
     ))
@@ -163,7 +163,7 @@ class RobotContainer:
     self.operatorController.leftBumper().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionAmp, constants.Subsystems.Launcher.Rollers.kSpeedsAmp))
     # self.operatorController.rightStick().whileTrue(cmd.none())
     # self.operatorController.leftStick().whileTrue(cmd.none())
-    self.operatorController.povUp().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle))
+    self.operatorController.povUp().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionShuttle, constants.Subsystems.Launcher.Rollers.kSpeedsShuttle))
     self.operatorController.povDown().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionSubwoofer))
     self.operatorController.povLeft().whileTrue(self.gameCommands.alignLauncherCommand()) # for manual launcher tuning only
     self.operatorController.povRight().whileTrue(self.gameCommands.alignLauncherToPositionCommand(constants.Subsystems.Launcher.Arm.kPositionPodium))
