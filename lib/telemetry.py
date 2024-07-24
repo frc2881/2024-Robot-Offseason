@@ -15,7 +15,8 @@ def _updateRobotInfo() -> None:
   SmartDashboard.putString("Robot/Mode", utils.getRobotMode().name)
   SmartDashboard.putString("Robot/State", utils.getRobotState().name)
   SmartDashboard.putString("Robot/Game/Alliance", utils.getAlliance().name)
-  SmartDashboard.putNumber("Robot/Game/StationNumber", DriverStation.getLocation() or 0)
+  SmartDashboard.putNumber("Robot/Game/Team", RobotController.getTeamNumber())
+  SmartDashboard.putNumber("Robot/Game/Station", DriverStation.getLocation() or 0)
   SmartDashboard.putNumber("Robot/Power/Battery/Voltage", RobotController.getBatteryVoltage())
 
 def _updateTelemetrySetting() -> None:
