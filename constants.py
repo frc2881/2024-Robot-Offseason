@@ -43,7 +43,7 @@ class Subsystems:
 
     kPathFollowerTranslationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
-    kPathFindingConstraints = PathConstraints(4.8, 3.6, units.degreesToRadians(540), units.degreesToRadians(720))
+    kPathFindingConstraints = PathConstraints(4.8, 3.6, units.degreesToRadians(360), units.degreesToRadians(540))
 
     kSwerveModuleFrontLeftDrivingMotorCANId: int = 3
     kSwerveModuleFrontLeftTurningMotorCANId: int = 4
@@ -101,13 +101,13 @@ class Subsystems:
     kTopFrontMotorCANId: int = 20
 
     kMotorCurrentLimit: units.amperes = 60
-    kMotorMaxForwardOutput: units.percent = 0.8
-    kMotorMaxReverseOutput: units.percent = -0.8
+    kMotorMaxForwardOutput: units.percent = 1.0
+    kMotorMaxReverseOutput: units.percent = -1.0
 
-    kSpeedIntake: units.percent = 0.8
-    kSpeedAlign: units.percent = 0.4
+    kSpeedIntake: units.percent = 0.6
+    kSpeedAlign: units.percent = 0.3
     kSpeedEject: units.percent = 0.6
-    kSpeedLaunch: units.percent = 0.8
+    kSpeedLaunch: units.percent = 1.0
 
     kDistanceLauncherIntake: units.millimeters = 80.0
     kDistanceLauncherReadyMin: units.millimeters = 40.0
@@ -169,7 +169,7 @@ class Subsystems:
 
       kSpeedsDefault = LauncherRollersSpeeds(0.80, 0.80)
       kSpeedsAmp = LauncherRollersSpeeds(0.30, 0.35)
-      kSpeedsShuttle = LauncherRollersSpeeds(0.7, 0.7)
+      kSpeedsShuttle = LauncherRollersSpeeds(0.70, 0.70)
 
       kLaunchSpeedDeltaMin: units.percent = 0.95
 
@@ -201,7 +201,7 @@ class Subsystems:
 class Sensors:
   class Gyro:
     class NAVX2:
-      kSerialPort = SerialPort.Port.kUSB
+      kSerialPort = SerialPort.Port.kUSB1
 
   class Pose:
     kPoseSensors: dict[str, Transform3d] = {
@@ -246,7 +246,7 @@ _aprilTagFieldLayout = AprilTagFieldLayout().loadField(AprilTagField.k2024Cresce
 
 class Game:
   class Commands:
-    kScoringAlignmentTimeout: units.seconds = 0.5
+    kScoringAlignmentTimeout: units.seconds = 0.75
     kScoringLaunchTimeout: units.seconds = 1.25
 
   class Field:

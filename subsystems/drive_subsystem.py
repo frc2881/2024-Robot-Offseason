@@ -224,6 +224,8 @@ class DriveSubsystem(Subsystem):
       ]
     ).onlyIf(
       lambda: self._lockState != DriveLockState.Locked
+    ).until(
+      lambda: self._isAlignedToTarget
     ).withName("DriveSubsystem:AlignToTarget")
 
   def _alignToTarget(self, robotHeading: units.degrees) -> None:
