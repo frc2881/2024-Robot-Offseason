@@ -43,7 +43,7 @@ class Subsystems:
 
     kPathFollowerTranslationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
-    kPathFindingConstraints = PathConstraints(4.8, 3.6, units.degreesToRadians(360), units.degreesToRadians(540))
+    kPathFindingConstraints = PathConstraints(5.4, 4.0, units.degreesToRadians(540), units.degreesToRadians(720))
 
     kSwerveModuleFrontLeftDrivingMotorCANId: int = 3
     kSwerveModuleFrontLeftTurningMotorCANId: int = 4
@@ -275,12 +275,12 @@ class Game:
       AutoPath.ScorePreload2: PathPlannerPath.fromPathFile(AutoPath.ScorePreload2.name),
       AutoPath.ScorePreload3: PathPlannerPath.fromPathFile(AutoPath.ScorePreload3.name),
       AutoPath.Pickup1: PathPlannerPath.fromPathFile(AutoPath.Pickup1.name),
-      AutoPath.Pickup13: PathPlannerPath.fromPathFile(AutoPath.Pickup13.name),
+      AutoPath.Pickup12: PathPlannerPath.fromPathFile(AutoPath.Pickup12.name),
       AutoPath.Pickup2: PathPlannerPath.fromPathFile(AutoPath.Pickup2.name),
       AutoPath.Pickup21: PathPlannerPath.fromPathFile(AutoPath.Pickup21.name),
       AutoPath.Pickup23: PathPlannerPath.fromPathFile(AutoPath.Pickup23.name),
       AutoPath.Pickup3: PathPlannerPath.fromPathFile(AutoPath.Pickup3.name),
-      AutoPath.Pickup31: PathPlannerPath.fromPathFile(AutoPath.Pickup31.name),
+      AutoPath.Pickup32: PathPlannerPath.fromPathFile(AutoPath.Pickup32.name),
       AutoPath.Pickup4: PathPlannerPath.fromPathFile(AutoPath.Pickup4.name),
       AutoPath.Pickup5: PathPlannerPath.fromPathFile(AutoPath.Pickup5.name),
       AutoPath.Pickup61: PathPlannerPath.fromPathFile(AutoPath.Pickup61.name),

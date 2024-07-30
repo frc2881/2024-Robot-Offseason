@@ -114,7 +114,7 @@ class GameCommands:
     ).withName("GameCommands:RunClimberSetup")
   
   def runClimberEngageCommand(self) -> Command:
-    return cmd.race(
+    return cmd.sequence(
       self.robot.climberSubsystem.setArmToPositionCommand(constants.Subsystems.Climber.Arm.kPositionEngage),
       cmd.sequence(
         cmd.waitSeconds(2.5),
