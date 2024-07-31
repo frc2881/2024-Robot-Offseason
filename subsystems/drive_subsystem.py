@@ -113,6 +113,7 @@ class DriveSubsystem(Subsystem):
 
     SmartDashboard.putNumber("Robot/Drive/Chassis/Length", self._constants.kWheelBase)
     SmartDashboard.putNumber("Robot/Drive/Chassis/Width", self._constants.kTrackWidth)
+    SmartDashboard.putNumber("Robot/Drive/Speed/Max", self._constants.kTranslationSpeedMax)
 
   def periodic(self) -> None:
     self._updateTelemetry()
@@ -149,9 +150,9 @@ class DriveSubsystem(Subsystem):
       inputY = self._inputYFilter.calculate(inputY * self._constants.kInputLimit)
       inputRotation = self._inputRotationFilter.calculate(inputRotation * self._constants.kInputLimit)
 
-    speedX: units.meters_per_second = inputX * self._constants.kMaxSpeedMetersPerSecond
-    speedY: units.meters_per_second = inputY * self._constants.kMaxSpeedMetersPerSecond
-    speedRotation: units.radians_per_second = inputRotation * self._constants.kMaxAngularSpeed
+    speedX: units.meters_per_second = inputX * self._constants.kTranslationSpeedMax
+    speedY: units.meters_per_second = inputY * self._constants.kTranslationSpeedMax
+    speedRotation: units.radians_per_second = inputRotation * self._constants.kRotationSpeedMax
     
     if self._orientation == DriveOrientation.Field:
       self.drive(ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, speedRotation, Rotation2d.fromDegrees(self._getGyroHeading())))
@@ -166,7 +167,7 @@ class DriveSubsystem(Subsystem):
     )
 
   def _setSwerveModuleStates(self, swerveModuleStates: tuple[SwerveModuleState, ...]) -> None:
-    SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, self._constants.kMaxSpeedMetersPerSecond)
+    SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, self._constants.kTranslationSpeedMax)
     frontLeft, frontRight, rearLeft, rearRight = swerveModuleStates
     self._swerveModuleFrontLeft.setTargetState(frontLeft)
     self._swerveModuleFrontRight.setTargetState(frontRight)
