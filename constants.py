@@ -138,7 +138,7 @@ class Subsystems:
 
       kPositionSubwoofer: float = 10.0
       kPositionPodium: float = 4.5
-      kPositionAmp: float = 9.50
+      kPositionAmp: float = 9.75
       kPositionShuttle: float = 8.75
       kPositionClimber: float = 1.00
       kPositionIntake: float = 3.00
@@ -168,7 +168,7 @@ class Subsystems:
       kMotorMaxReverseOutput: units.percent = -1.0
 
       kSpeedsDefault = LauncherRollersSpeeds(0.80, 0.80)
-      kSpeedsAmp = LauncherRollersSpeeds(0.30, 0.35)
+      kSpeedsAmp = LauncherRollersSpeeds(0.25, 0.30)
       kSpeedsShuttle = LauncherRollersSpeeds(0.70, 0.70)
 
       kLaunchSpeedDeltaMin: units.percent = 0.95
@@ -207,15 +207,15 @@ class Sensors:
     kPoseSensors: dict[str, Transform3d] = {
       "Rear": Transform3d(
         Translation3d(units.inchesToMeters(-4.75), units.inchesToMeters(-11.25), units.inchesToMeters(20.0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-24.3), units.degreesToRadians(-177.0))
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.7), units.degreesToRadians(-177.0))
       ),
       "Right": Transform3d(
         Translation3d(units.inchesToMeters(-3.25), units.inchesToMeters(-11.5), units.inchesToMeters(15.5)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.3), units.degreesToRadians(-90.0))
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-25.0), units.degreesToRadians(-90.0))
       ),
       "Left": Transform3d(
         Translation3d(units.inchesToMeters(5.75), units.inchesToMeters(3.25), units.inchesToMeters(14.0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.3), units.degreesToRadians(90))
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-23.7), units.degreesToRadians(90))
       )
     }
     kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
